@@ -1,7 +1,13 @@
 ---
 import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
+import portraitSrc from "../assets/portrait.jpg";
+
+// Optimized portrait. Replace src/assets/portrait.jpg with the real photo
+// (same filename) and it flows through automatically.
+const portrait = await getImage({ src: portraitSrc, width: 760, format: "webp" });
 
 // Load projects, drop drafts, sort: featured first, then newest year.
 const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
@@ -10,55 +16,86 @@ const projects = (await getCollection("projects", ({ data }) => !data.draft)).so
     return b.data.year - a.data.year;
   }
 );
+
+// Words for the scrolling marquee band.
+const marquee = ["Product Design", "Brand Identity", "Motion", "Web", "Art Direction"];
 ---
 
 <BaseLayout>
-  <main class="mx-auto max-w-5xl px-6">
-    <!-- Hero -->
-    <section class="flex min-h-screen flex-col justify-center">
-      <p data-hero class="mb-4 text-sm uppercase tracking-widest text-neutral-500">
-        Designer &amp; Maker
-      </p>
-      <h1
-        data-hero
-        class="max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-7xl"
-      >
-        I design and build calm, considered digital experiences.
-      </h1>
-      <p data-hero class="mt-6 max-w-xl text-lg text-neutral-400">
-        A selection of work spanning product design, brand, and the web.
-      </p>
-    </section>
-
-    <!-- Work -->
-    <section id="work" class="py-24">
-      <h2 class="mb-10 text-sm uppercase tracking-widest text-neutral-500">
-        Selected Work
-      </h2>
-      <div data-card-group class="grid gap-6 sm:grid-cols-2">
-        {projects.map((project) => <ProjectCard project={project} />)}
+  <main>    <section class="relative flex min-h-screen items-center bg-[#0a0a0a] px-4 text-white">
+      <div
+        class="flex w-full flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-20"
+      >        <h1
+          data-hero
+          data-split-heading
+          class="w-full font-normal leading-[1.2] tracking-[-0.5px] text-[28px] lg:w-[630px]"
+        >
+          An experienced designer bringing creative ideas and technical expertise to
+          digital products.
+        </h1>
+        <div
+          data-hero
+          data-hero-image
+          data-portrait
+          class="portrait aspect-[4/5] w-[280px] shrink-0 overflow-hidden bg-black lg:w-[348px]"
+        >
+          <img src={portrait.src} alt="Suthan" class="portrait__base" />
+        </div>
+        <p
+          data-hero
+          data-split-paragraph
+          class="w-full text-[16px] leading-[1.4] tracking-normal lg:w-[630px]"
+        >
+          I design digital products that are both beautiful and meaningful. Over the past decade, I've worked with startups, design agencies, and SaaS companies turning early ideas into thoughtful, user-centered products.
+        </p>
       </div>
     </section>
-
-    <!-- About -->
-    <section id="about" class="max-w-2xl py-24" data-reveal>
-      <h2 class="mb-6 text-sm uppercase tracking-widest text-neutral-500">About</h2>
-      <p class="text-2xl leading-relaxed tracking-tight">
-        I'm Su, a designer focused on the intersection of craft and clarity. I care
-        about the details others skip — motion, rhythm, and the feeling a product
-        leaves behind.
-      </p>
+    <section aria-hidden="true" class="overflow-hidden border-y border-neutral-300 py-5">
+      <div class="marquee-track flex w-max whitespace-nowrap">
+        {[0, 1].map(() => (
+          <div class="flex shrink-0 items-center gap-8 pr-8 text-2xl font-medium tracking-tight sm:text-4xl">
+            {marquee.map((w) => (
+              <>
+                <span>{w}</span>
+                <span class="text-neutral-400">—</span>
+              </>
+            ))}
+          </div>
+        ))}
+      </div>
     </section>
-
-    <!-- Contact -->
-    <section id="contact" class="border-t border-neutral-800 py-24" data-reveal>
-      <h2 class="mb-6 text-sm uppercase tracking-widest text-neutral-500">Contact</h2>
-      <a
-        href="mailto:designersuthan@gmail.com"
-        class="text-3xl font-semibold tracking-tight transition-colors hover:text-neutral-400 sm:text-4xl"
-      >
-        designersuthan@gmail.com
-      </a>
+    <section id="work" class="w-full px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
+      <div class="mx-auto w-full max-w-[1800px]">
+        <div class="mb-12 flex items-baseline justify-between" data-reveal>
+          <h2 class="font-mono text-xs uppercase tracking-widest text-neutral-500">
+            Selected Work
+          </h2>
+          <span class="font-mono text-xs text-neutral-500">
+            ({String(projects.length).padStart(2, "0")})
+          </span>
+        </div>
+        <div data-card-group class="space-y-20 sm:space-y-32">
+          {projects.map((project, i) => (
+            <ProjectCard project={project} index={i + 1} />
+          ))}
+        </div>
+      </div>
+    </section>
+    <section
+      id="about"
+      class="w-full border-t border-neutral-300 px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
+      data-reveal
+    >
+      <div class="mx-auto w-full max-w-[1800px]">
+        <h2 class="mb-10 font-mono text-xs uppercase tracking-widest text-neutral-500">
+          About
+        </h2>
+        <p class="max-w-4xl font-medium leading-[1.15] tracking-tight text-[clamp(1.5rem,3.5vw,2.75rem)]">
+          I'm Su, a designer focused on the intersection of craft and clarity. I care
+          about the details others skip — motion, rhythm, and the feeling a product
+          leaves behind.
+        </p>
+      </div>
     </section>
   </main>
 </BaseLayout>

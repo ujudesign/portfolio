@@ -1,16 +1,33 @@
 ---
-// Simple fixed header. Links point to homepage sections.
-const { home = false } = Astro.props;
-const base = home ? "" : "/";
+// Fixed status bar. `mix-blend-difference` keeps the text legible over both the
+// dark hero and the lighter sections below, flipping black/white automatically.
 ---
 
-<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-sm">
-  <nav class="mx-auto max-w-5xl px-6 py-5 flex items-center justify-between">
-    <a href="/" class="text-sm font-semibold tracking-tight">Su</a>
-    <div class="flex gap-6 text-sm text-neutral-400">
-      <a href={`${base}#work`} class="hover:text-neutral-100 transition-colors">Work</a>
-      <a href={`${base}#about`} class="hover:text-neutral-100 transition-colors">About</a>
-      <a href={`${base}#contact`} class="hover:text-neutral-100 transition-colors">Contact</a>
-    </div>
-  </nav>
+<header id="top" class="fixed inset-x-0 top-0 z-50">
+  <div
+    class="flex w-full items-center justify-between gap-4 p-4 font-mono text-[10px] uppercase tracking-[0.06em] text-muted"
+  >
+    <span data-status-item>Suthan / Product Designer</span>
+    <span data-status-item class="hidden md:block">Currently at Ferrazcreative</span>
+    <span data-status-item id="clock" class="hidden md:block">MTL, QC</span>
+    <span data-status-item>Available for Freelance</span>
+  </div>
 </header>
+
+<script>
+  // Live local time in Montreal, updating every second.
+  function tick() {
+    const el = document.getElementById("clock");
+    if (!el) return;
+    const time = new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+      timeZone: "America/Toronto",
+    }).format(new Date());
+    el.textContent = `${time} / MTL, QC`;
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>

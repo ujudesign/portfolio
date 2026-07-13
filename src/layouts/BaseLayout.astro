@@ -1,4 +1,8 @@
 ---
+// Self-hosted Geist fonts (variable — all weights in one small file each).
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "lenis/dist/lenis.css";
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 
@@ -25,17 +29,22 @@ const year = new Date().getFullYear();
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <!-- Add the `js` class before paint so animated elements hide without a flash. -->
-    <script is:inline>
+    <meta property="og:type" content="website" />    <script is:inline>
       document.documentElement.classList.add("js");
     </script>
   </head>
-  <body class="bg-neutral-950 text-neutral-100 antialiased">
+  <body class="text-neutral-900 antialiased">
     <Header />
     <slot />
-    <footer class="mx-auto max-w-5xl px-6 py-10 text-sm text-neutral-500">
-      © {year} Su. All rights reserved.
+    <footer class="w-full border-t border-neutral-300 px-6 py-10 sm:px-10 lg:px-16">
+      <div
+        class="mx-auto flex w-full max-w-[1800px] items-center justify-between text-sm text-neutral-500"
+      >
+        <span>© {year} Suthan</span>
+        <a href="#top" class="transition-colors hover:text-neutral-900">
+          Back to top ↑
+        </a>
+      </div>
     </footer>
 
     <script>

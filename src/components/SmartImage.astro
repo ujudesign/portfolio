@@ -1,0 +1,33 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+/**
+ * Renders an optimized <Image> for local uploads (which Astro processes into
+ * an object) and a plain <img> for remote URLs (plain strings). This lets the
+ * CMS store either kind of image without breaking the build.
+ */
+interface Props {
+  src: ImageMetadata | string;
+  alt: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+}
+
+const {
+  src,
+  alt,
+  class: className,
+  widths = [400, 800, 1200],
+  sizes = "100vw",
+} = Astro.props;
+---
+
+{
+  typeof src === "string" ? (
+    <img src={src} alt={alt} loading="lazy" decoding="async" class={className} />
+  ) : (
+    <Image src={src} alt={alt} widths={widths} sizes={sizes} class={className} />
+  )
+}

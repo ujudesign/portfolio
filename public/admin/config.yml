@@ -29,18 +29,49 @@ collections:
     public_folder: "../../assets/uploads"
     fields:
       - { label: Title, name: title, widget: string }
-      - { label: Short description, name: description, widget: text }
+      - { label: Short description, name: description, widget: text, hint: "One line shown on the homepage card." }
       - { label: Year, name: year, widget: number, value_type: int, min: 1990, max: 2100 }
       - { label: Role, name: role, widget: string, required: false }
       - { label: Client, name: client, widget: string, required: false }
       - { label: Tags, name: tags, widget: list, required: false }
-      - { label: Thumbnail, name: thumbnail, widget: image }
-      - label: Gallery
-        name: gallery
-        widget: list
-        required: false
-        field: { label: Image, name: image, widget: image }
+      - { label: Thumbnail, name: thumbnail, widget: image, hint: "Cover image for the homepage grid." }
       - { label: External URL, name: url, widget: string, required: false }
       - { label: Featured, name: featured, widget: boolean, default: false }
       - { label: Draft, name: draft, widget: boolean, default: false }
-      - { label: Case study, name: body, widget: markdown }
+      - label: Overview (optional)
+        name: body
+        widget: markdown
+        required: false
+        hint: "An optional intro paragraph shown right under the title, before the blocks."
+      # Ordered, interleaved content. Add a block, choose Text or Gallery,
+      # and drag to reorder. Repeat as many times as you like.
+      - label: Content blocks
+        name: blocks
+        widget: list
+        required: false
+        types:
+          - label: Text
+            name: text
+            widget: object
+            summary: "Text — {{fields.heading}}"
+            fields:
+              - { label: Heading, name: heading, widget: string, required: false }
+              - { label: Body, name: body, widget: markdown }
+          - label: Gallery
+            name: gallery
+            widget: object
+            summary: "Gallery ({{fields.layout}}, {{fields.images.length}} images)"
+            fields:
+              - label: Layout
+                name: layout
+                widget: select
+                default: grid-2
+                options:
+                  - { label: "Two across", value: grid-2 }
+                  - { label: "Three across", value: grid-3 }
+                  - { label: "Full width", value: full }
+              - label: Images
+                name: images
+                widget: list
+                field: { label: Image, name: image, widget: image }
+              - { label: Caption, name: caption, widget: string, required: false }
