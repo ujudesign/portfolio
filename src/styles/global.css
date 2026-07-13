@@ -35,6 +35,24 @@ body {
   will-change: transform, opacity;
 }
 
+/* ---- Hero ambient background (dots + cursor glow + grain) ---- */
+.hero-bg,
+.hero-bg * {
+  pointer-events: none;
+}
+.hero-dots {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+}
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 /* ---- Portrait (image + WebGL hover shader canvas) ---- */
 .portrait {
   position: relative;
@@ -48,7 +66,63 @@ body {
   object-fit: cover;
 }
 .portrait img {
+  z-index: 0;
   transition: opacity 0.3s ease;
+}
+.portrait canvas {
+  z-index: 1;
+}
+
+/* Intro loader (fills the portrait box, then curtains up to reveal it) */
+.loader-panel {
+  position: absolute;
+  inset: 0;
+}
+.loader-panel--1 {
+  z-index: 4;
+  background: #8b5cf6;
+}
+.loader-panel--2 {
+  z-index: 3;
+  background: #6d28d9;
+}
+.loader-panel--3 {
+  z-index: 2;
+  background: #4338ca;
+}
+.loader {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* gap around the box so the progress line doesn't touch it (loading only) */
+.portrait[data-loading] {
+  box-shadow: 0 0 0 24px #0a0a0a;
+}
+/* thin progress line that draws across the hero, behind the box */
+.loader-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: rgba(255, 255, 255, 0.4);
+}
+.loader-count {
+  position: relative;
+  z-index: 1;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  color: #fff;
 }
 
 /* ---- Marquee ---- */

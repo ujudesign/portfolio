@@ -5,37 +5,124 @@ import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-/**
- * Subtle, tasteful motion. Gentle distances, soft easing.
- * Respects prefers-reduced-motion — no motion for users who ask for less.
- */
+// Flip to false to skip the intro loader while building other pages.
+const ENABLE_LOADER = true;
+
+// Entry point. Everything honors reduced-motion.
 export function initAnimations() {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   initSmoothScroll(reduce);
-  initHeroLoad(reduce);
+  initIntro(reduce);
   initScrollReveals(reduce);
   initPortrait(reduce);
+  initHeroBackground(reduce);
 }
 
-/** WebGL hover-displacement shader on the hero portrait (lazy-loaded). */
+// Faint dot grid behind the hero that lights up near the cursor.
+function initHeroBackground(reduce) {
+  const bg = document.querySelector("[data-hero-bg]");
+  const canvas = document.querySelector("[data-hero-dots]");
+  if (!bg || !canvas) return;
+  const section = bg.parentElement;
+  const ctx = canvas.getContext("2d");
+
+  const GAP = 34; // spacing between dots
+  const RADIUS = 160; // cursor influence radius
+  const BASE_A = 0.14; // resting dot alpha
+  const BOOST_A = 0.85; // extra alpha near cursor
+  const PULL = 0.35; // magnetic pull toward the cursor
+
+  let w = 0;
+  let h = 0;
+  let dpr = 1;
+  const mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999, on: 0, ton: 0 };
+
+  const resize = () => {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = bg.getBoundingClientRect();
+    w = rect.width;
+    h = rect.height;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  resize();
+  new ResizeObserver(resize).observe(bg);
+
+  const render = (time) => {
+    mouse.x += (mouse.tx - mouse.x) * 0.12;
+    mouse.y += (mouse.ty - mouse.y) * 0.12;
+    mouse.on += (mouse.ton - mouse.on) * 0.08;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#ffffff";
+
+    // subtle breathing at rest
+    const pulse = reduce ? 0 : 0.012 * (0.5 + 0.5 * Math.sin(time * 1.2));
+    const base = BASE_A + pulse;
+
+    for (let x = 0; x <= w; x += GAP) {
+      for (let y = 0; y <= h; y += GAP) {
+        let a = base;
+        let s = 1.4;
+        let dx = x;
+        let dy = y;
+        if (mouse.on > 0.001) {
+          const ox = mouse.x - x;
+          const oy = mouse.y - y;
+          const d = Math.hypot(ox, oy);
+          if (d < RADIUS) {
+            const f = 1 - d / RADIUS;
+            const e = f * f;
+            a += BOOST_A * e * mouse.on;
+            s += 1.4 * e * mouse.on;
+            dx += ox * PULL * e * mouse.on; // pull toward cursor
+            dy += oy * PULL * e * mouse.on;
+          }
+        }
+        ctx.globalAlpha = a;
+        ctx.fillRect(dx - s / 2, dy - s / 2, s, s);
+      }
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  // reduced motion: one static grid, no interaction
+  if (reduce) {
+    render(0);
+    return;
+  }
+
+  section.addEventListener("pointermove", (e) => {
+    const rect = bg.getBoundingClientRect();
+    mouse.tx = e.clientX - rect.left;
+    mouse.ty = e.clientY - rect.top;
+    mouse.ton = 1;
+  });
+  section.addEventListener("pointerleave", () => {
+    mouse.ton = 0;
+  });
+
+  gsap.ticker.add(render);
+}
+
+// WebGL hover shader on the portrait (lazy-loaded).
 async function initPortrait(reduce) {
   const portrait = document.querySelector("[data-portrait]");
-  // Under reduced-motion (or no portrait) we simply keep the static image.
-  if (!portrait || reduce) return;
+  if (!portrait || reduce) return; // otherwise keep the static image
 
   try {
     const { initPortraitShader } = await import("./portraitShader.js");
     initPortraitShader(portrait);
   } catch (e) {
-    // Any failure leaves the plain <img> in place — no broken state.
+    // on failure, keep the plain <img>
   }
 }
 
-/** Lenis smooth scrolling, driven by GSAP's ticker so ScrollTrigger stays in sync. */
+// Lenis smooth scroll, synced to GSAP's ticker.
 function initSmoothScroll(reduce) {
-  // Smooth scroll is motion — leave native (instant) scrolling for reduced-motion.
-  if (reduce) return;
+  if (reduce) return; // native scroll for reduced-motion
 
   const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
 
@@ -43,7 +130,7 @@ function initSmoothScroll(reduce) {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 
-  // Route in-page anchor links (Work / About / Back to top) through Lenis.
+  // smooth-scroll in-page anchor links
   document.querySelectorAll('a[href*="#"]').forEach((a) => {
     const url = new URL(a.href, location.href);
     if (url.pathname !== location.pathname || !url.hash) return;
@@ -57,75 +144,105 @@ function initSmoothScroll(reduce) {
   });
 }
 
-/** Orchestrated page-load sequence for the hero. */
-function initHeroLoad(reduce) {
+// Intro loader -> curtain reveal -> hero content.
+function initIntro(reduce) {
+  const loader = document.querySelector("[data-loader]");
+  const heroBg = document.querySelector("[data-hero-bg]");
+
+  // No loader wanted (disabled / reduced-motion / not the homepage): drop it
+  // and show the content straight away.
+  if (reduce || !ENABLE_LOADER || !loader) {
+    loader?.remove();
+    document.querySelectorAll("[data-loader-panel]").forEach((p) => p.remove());
+    document.querySelector("[data-loader-line]")?.remove();
+    document.querySelector("[data-portrait]")?.removeAttribute("data-loading");
+    revealHeroContent(reduce);
+    return;
+  }
+
+  // Hide the ambient grid while the loader runs; fade it in on reveal.
+  if (heroBg) gsap.set(heroBg, { opacity: 0 });
+
+  runLoader(loader).then(() => {
+    if (heroBg) gsap.to(heroBg, { opacity: 1, duration: 1.2, ease: "power2.out" });
+    revealHeroContent(false);
+  });
+}
+
+// Counter + grainy fill, then a two-panel curtain slides up to reveal the portrait.
+function runLoader(loader) {
+  return new Promise((resolve) => {
+    const num = loader.querySelector("[data-loader-num]");
+    const panels = gsap.utils.toArray("[data-loader-panel]");
+    const line = document.querySelector("[data-loader-line]");
+    const counter = { v: 0 };
+
+    const tl = gsap.timeline();
+    tl.to(
+      counter,
+      {
+        v: 100,
+        duration: 3.2,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          if (num) num.textContent = String(Math.round(counter.v));
+        },
+      },
+      0
+    );
+    if (line) tl.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 3.2, ease: "power1.inOut" }, 0);
+
+    tl.to({}, { duration: 0.2 }); // brief hold at 100%
+    if (line) tl.to(line, { opacity: 0, duration: 0.4 }, "<");
+    tl.to(loader, { yPercent: -100, duration: 0.7, ease: "power4.inOut" });
+    if (panels.length) {
+      tl.to(panels, { yPercent: -100, duration: 0.7, ease: "power4.inOut", stagger: 0.1 }, "<0.12");
+    }
+    tl.add(() => {
+      loader.style.display = "none";
+      panels.forEach((p) => (p.style.display = "none"));
+      if (line) line.style.display = "none";
+      loader.closest("[data-portrait]")?.removeAttribute("data-loading");
+      resolve();
+    });
+  });
+}
+
+// Status bar + heading/paragraph reveal.
+function revealHeroContent(reduce) {
   const statusItems = gsap.utils.toArray("[data-status-item]");
   const heading = document.querySelector("[data-split-heading]");
   const paragraph = document.querySelector("[data-split-paragraph]");
-  const image = document.querySelector("[data-hero-image]");
 
-  // Nothing to animate here on pages without a hero (e.g. case studies still
-  // have the status bar, which we handle below).
   if (reduce) {
-    gsap.set([...statusItems, heading, paragraph, image], {
-      opacity: 1,
-      clearProps: "transform",
-    });
+    gsap.set([...statusItems, heading, paragraph], { opacity: 1, clearProps: "transform" });
     return;
   }
 
   const build = () => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    // 1. Status bar fades + gently staggers in.
+    // status bar
     if (statusItems.length) {
-      tl.to(
-        statusItems,
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, startAt: { y: -6 } },
-        0
-      );
+      tl.to(statusItems, { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, startAt: { y: -6 } }, 0);
     }
 
-    // 2. Heading reveals line by line (masked slide-up), then reverts to
-    //    natural text so it reflows on resize and stays screen-reader friendly.
+    // heading — line-by-line reveal, then revert to natural text
     if (heading) {
       gsap.set(heading, { opacity: 1 });
       const split = new SplitText(heading, { type: "lines", mask: "lines" });
-      tl.from(
-        split.lines,
-        {
-          yPercent: 110,
-          duration: 0.9,
-          stagger: 0.12,
-          onComplete: () => split.revert(),
-        },
-        0.2
-      );
+      tl.from(split.lines, { yPercent: 110, duration: 0.9, stagger: 0.12, onComplete: () => split.revert() }, 0.05);
     }
 
-    // 3. Paragraph reveals its lines a touch quicker, slightly after the heading.
+    // paragraph
     if (paragraph) {
       gsap.set(paragraph, { opacity: 1 });
       const splitP = new SplitText(paragraph, { type: "lines", mask: "lines" });
-      tl.from(
-        splitP.lines,
-        {
-          yPercent: 110,
-          duration: 0.8,
-          stagger: 0.06,
-          onComplete: () => splitP.revert(),
-        },
-        0.5
-      );
-    }
-
-    // 4. Portrait fades in alongside the text.
-    if (image) {
-      tl.to(image, { opacity: 1, duration: 1.1, startAt: { yPercent: 4 }, yPercent: 0 }, 0.3);
+      tl.from(splitP.lines, { yPercent: 110, duration: 0.8, stagger: 0.06, onComplete: () => splitP.revert() }, 0.3);
     }
   };
 
-  // Wait for the webfont so SplitText measures line breaks correctly.
+  // wait for the webfont so line breaks measure correctly
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(build);
   } else {
@@ -133,7 +250,7 @@ function initHeroLoad(reduce) {
   }
 }
 
-/** Scroll-triggered reveals for the sections below the hero. */
+// Scroll reveals for the sections below the hero.
 function initScrollReveals(reduce) {
   if (reduce) {
     gsap.set("[data-reveal], [data-card]", { opacity: 1, clearProps: "transform" });

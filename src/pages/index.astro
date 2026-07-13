@@ -22,29 +22,41 @@ const marquee = ["Product Design", "Brand Identity", "Motion", "Web", "Art Direc
 ---
 
 <BaseLayout>
-  <main>    <section class="relative flex min-h-screen items-center bg-[#0a0a0a] px-4 text-white">
+  <main>    <section class="relative flex min-h-screen items-center overflow-hidden bg-[#0a0a0a] px-[clamp(1rem,1.6vw,2.5rem)] text-white">
+      <div data-hero-bg aria-hidden="true" class="hero-bg absolute inset-0">
+        <canvas data-hero-dots class="hero-dots"></canvas>
+        <div class="hero-grain"></div>
+      </div>
+      <div data-loader-line class="loader-line"></div>
       <div
-        class="flex w-full flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-20"
-      >        <h1
-          data-hero
-          data-split-heading
-          class="w-full font-normal leading-[1.2] tracking-[-0.5px] text-[28px] lg:w-[630px]"
-        >
-          An experienced designer bringing creative ideas and technical expertise to
-          digital products.
-        </h1>
+        class="relative z-10 flex w-full flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-[clamp(3rem,4.5vw,8rem)]"
+      >        <div class="w-full lg:w-[clamp(20rem,43vw,52rem)] [container-type:inline-size]">
+          <h1
+            data-hero
+            data-split-heading
+            class="font-normal leading-[1.2] tracking-[-0.5px] text-[clamp(1.5rem,4cqw,3.5rem)]"
+          >
+            An experienced designer bringing creative ideas and technical expertise to
+            digital products.
+          </h1>
+        </div>
         <div
-          data-hero
-          data-hero-image
           data-portrait
-          class="portrait aspect-[4/5] w-[280px] shrink-0 overflow-hidden bg-black lg:w-[348px]"
+          data-loading
+          class="portrait aspect-[4/5] w-[clamp(16rem,26vw,46rem)] shrink-0 overflow-hidden bg-black"
         >
           <img src={portrait.src} alt="Suthan" class="portrait__base" />
+          <div data-loader-panel class="loader-panel loader-panel--1"></div>
+          <div data-loader-panel class="loader-panel loader-panel--2"></div>
+          <div data-loader-panel class="loader-panel loader-panel--3"></div>
+          <div data-loader class="loader">
+            <div class="loader-count"><span data-loader-num>0</span>%</div>
+          </div>
         </div>
         <p
           data-hero
           data-split-paragraph
-          class="w-full text-[16px] leading-[1.4] tracking-normal lg:w-[630px]"
+          class="w-full text-[clamp(0.85rem,1.05vw,1.3rem)] leading-[1.4] tracking-normal lg:w-[clamp(20rem,43vw,52rem)]"
         >
           I design digital products that are both beautiful and meaningful. Over the past decade, I've worked with startups, design agencies, and SaaS companies turning early ideas into thoughtful, user-centered products.
         </p>

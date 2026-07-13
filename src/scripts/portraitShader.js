@@ -23,23 +23,27 @@ const fragment = /* glsl */ `
   varying vec2 vUv;
 
   void main() {
-    // "cover" fit the image into the canvas.
+    // cover-fit the image
     vec2 s = uCanvasSize / uImageSize;
     float scale = max(s.x, s.y);
     vec2 size = uImageSize * scale;
     vec2 offset = (uCanvasSize - size) * 0.5;
     vec2 uv = (vUv * uCanvasSize - offset) / size;
 
-    // Ripple displacement radiating from the cursor, strongest on hover.
+    // ripple from the cursor
     vec2 toMouse = uv - uMouse;
     float dist = length(toMouse);
     float falloff = smoothstep(0.5, 0.0, dist);
     float amp = falloff * uHover;
     vec2 dir = normalize(toMouse + 1e-4);
-    float wave = sin(dist * 28.0 - uTime * 3.2);
-    vec2 disp = dir * wave * 0.018 * amp;
 
-    // Chromatic aberration that grows with the displacement.
+    // protect the centre (face); effect builds toward the edges
+    float distCenter = distance(uv, vec2(0.5));
+    amp *= smoothstep(0.22, 0.55, distCenter);
+    float wave = sin(dist * 28.0 - uTime * 3.2);
+    vec2 disp = dir * wave * 0.026 * amp;
+
+    // chromatic aberration
     float ca = 0.010 * amp;
     vec2 duv = uv + disp;
     float r = texture2D(uTexture, duv + dir * ca).r;
@@ -47,7 +51,7 @@ const fragment = /* glsl */ `
     float b = texture2D(uTexture, duv - dir * ca).b;
     vec3 color = vec3(r, g, b);
 
-    // Keep sampling inside the image to avoid smeared edges.
+    // stay within image bounds
     if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) {
       color = texture2D(uTexture, clamp(uv, 0.0, 1.0)).rgb;
     }
@@ -56,10 +60,7 @@ const fragment = /* glsl */ `
   }
 `;
 
-/**
- * Attaches a WebGL hover-displacement shader over the portrait's <img>.
- * Returns true if it initialised, false if it fell back (caller keeps the img).
- */
+// WebGL hover shader over the portrait <img>. Returns false if it falls back.
 export function initPortraitShader(container) {
   const img = container.querySelector("img");
   if (!img) return false;
@@ -100,7 +101,7 @@ export function initPortraitShader(container) {
   });
   const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
 
-  // Load the texture from the already-rendered <img>.
+  // load texture from the <img>
   const src = img.currentSrc || img.src;
   const bitmap = new Image();
   bitmap.crossOrigin = "anonymous";
