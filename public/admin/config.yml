@@ -1,0 +1,46 @@
+# Sveltia CMS configuration.
+#
+# LOCAL EDITING: run `npm run dev`, open http://localhost:4321/admin/ and choose
+# "Work with Local Repository". Edits write straight to the files in this repo.
+# Nothing is uploaded anywhere — you commit and push with Git when you're ready.
+#
+# The `backend` block below is only used if you ever enable online editing.
+# Update `repo` to your GitHub repository before that would work.
+backend:
+  name: github
+  repo: your-username/your-repo
+  branch: main
+
+# Where uploaded images are stored, relative to each project's markdown file.
+# This resolves to src/assets/uploads and lets Astro optimize the images.
+media_folder: "src/assets/uploads"
+public_folder: "/src/assets/uploads"
+
+collections:
+  - name: projects
+    label: Projects
+    label_singular: Project
+    folder: src/content/projects
+    create: true
+    slug: "{{slug}}"
+    # Per-collection media path (relative to the entry file) so the saved
+    # frontmatter path matches what Astro's image() expects.
+    media_folder: "../../assets/uploads"
+    public_folder: "../../assets/uploads"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Short description, name: description, widget: text }
+      - { label: Year, name: year, widget: number, value_type: int, min: 1990, max: 2100 }
+      - { label: Role, name: role, widget: string, required: false }
+      - { label: Client, name: client, widget: string, required: false }
+      - { label: Tags, name: tags, widget: list, required: false }
+      - { label: Thumbnail, name: thumbnail, widget: image }
+      - label: Gallery
+        name: gallery
+        widget: list
+        required: false
+        field: { label: Image, name: image, widget: image }
+      - { label: External URL, name: url, widget: string, required: false }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Case study, name: body, widget: markdown }

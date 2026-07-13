@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
+/* GSAP-animated elements start hidden. The `.js` class is added by a blocking
+   head script so there's no flash; if JS is off, nothing is hidden. */
+.js [data-hero],
+.js [data-reveal],
+.js [data-card] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Rich-text (markdown body) styling for case-study pages. */
+.prose {
+  max-width: 42rem;
+  line-height: 1.75;
+  color: var(--color-neutral-300);
+}
+.prose > * + * {
+  margin-top: 1.25rem;
+}
+.prose h2 {
+  margin-top: 2.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-neutral-100);
+}
+.prose h3 {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-neutral-100);
+}
+.prose a {
+  color: var(--color-neutral-100);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose strong {
+  color: var(--color-neutral-100);
+}

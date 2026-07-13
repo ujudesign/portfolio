@@ -1,0 +1,18 @@
+---
+// Local-only CMS admin, served as a real route at /admin/ (works in dev + build).
+// Sveltia loads its config from /admin/config.yml (kept in public/admin/).
+// This page only functions when editing locally; there's no public write access.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Content Manager</title>
+  </head>
+  <body>
+    <script is:inline src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </body>
+</html>

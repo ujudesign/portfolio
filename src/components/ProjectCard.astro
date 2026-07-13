@@ -1,0 +1,45 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { title, description, year, tags, thumbnail } = project.data;
+---
+
+<a
+  href={`/work/${project.id}`}
+  data-card
+  class="group block overflow-hidden rounded-xl border border-neutral-800 transition-colors duration-300 hover:border-neutral-600"
+>
+  <div class="aspect-[4/3] overflow-hidden bg-neutral-900">
+    <Image
+      src={thumbnail}
+      alt={title}
+      widths={[400, 800, 1200]}
+      sizes="(min-width: 640px) 50vw, 100vw"
+      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+    />
+  </div>
+  <div class="p-5">
+    <div class="flex items-baseline justify-between gap-4">
+      <h3 class="text-lg font-semibold tracking-tight">{title}</h3>
+      <span class="shrink-0 text-sm text-neutral-500">{year}</span>
+    </div>
+    <p class="mt-2 text-neutral-400">{description}</p>
+    {
+      tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {tags.map((t) => (
+            <span class="rounded-full border border-neutral-800 px-2.5 py-0.5 text-xs text-neutral-500">
+              {t}
+            </span>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</a>

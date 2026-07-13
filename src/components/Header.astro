@@ -1,0 +1,16 @@
+---
+// Simple fixed header. Links point to homepage sections.
+const { home = false } = Astro.props;
+const base = home ? "" : "/";
+---
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-sm">
+  <nav class="mx-auto max-w-5xl px-6 py-5 flex items-center justify-between">
+    <a href="/" class="text-sm font-semibold tracking-tight">Su</a>
+    <div class="flex gap-6 text-sm text-neutral-400">
+      <a href={`${base}#work`} class="hover:text-neutral-100 transition-colors">Work</a>
+      <a href={`${base}#about`} class="hover:text-neutral-100 transition-colors">About</a>
+      <a href={`${base}#contact`} class="hover:text-neutral-100 transition-colors">Contact</a>
+    </div>
+  </nav>
+</header>
