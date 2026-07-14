@@ -1,12 +1,10 @@
 ---
-import { getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FeaturedWork from "../components/FeaturedWork.astro";
-import portraitSrc from "../assets/portrait.jpg";
-
-// Optimized portrait. Replace src/assets/portrait.jpg with the real photo
-// (same filename) and it flows through automatically.
-const portrait = await getImage({ src: portraitSrc, width: 760, format: "webp" });
+// Import the portrait as a plain static asset (served directly, no runtime
+// image endpoint) so it works on any static host. Replace src/assets/portrait.jpg
+// with the real photo (keep it web-sized, ~2000px).
+import portrait from "../assets/portrait.jpg";
 ---
 
 <BaseLayout>
@@ -33,7 +31,13 @@ const portrait = await getImage({ src: portraitSrc, width: 760, format: "webp" }
           data-loading
           class="portrait aspect-[4/5] w-[clamp(15rem,23vw,42rem)] shrink-0 overflow-hidden bg-black"
         >
-          <img src={portrait.src} alt="Suthan" class="portrait__base" />
+          <img
+            src={portrait.src}
+            width={portrait.width}
+            height={portrait.height}
+            alt="Suthan"
+            class="portrait__base"
+          />
           <div data-loader-panel class="loader-panel loader-panel--1"></div>
           <div data-loader-panel class="loader-panel loader-panel--2"></div>
           <div data-loader-panel class="loader-panel loader-panel--3"></div>
