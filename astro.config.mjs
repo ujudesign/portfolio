@@ -8,7 +8,12 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   // Update this to your real domain before going live (used for sitemap/SEO).
   site: "https://suthan.design",
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap({
+      filter: (page) => !page.includes("/admin") && !page.includes("/styleguide"),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
