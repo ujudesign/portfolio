@@ -1,24 +1,12 @@
 ---
-import { getCollection } from "astro:content";
 import { getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ProjectCard from "../components/ProjectCard.astro";
+import FeaturedWork from "../components/FeaturedWork.astro";
 import portraitSrc from "../assets/portrait.jpg";
 
 // Optimized portrait. Replace src/assets/portrait.jpg with the real photo
 // (same filename) and it flows through automatically.
 const portrait = await getImage({ src: portraitSrc, width: 760, format: "webp" });
-
-// Load projects, drop drafts, sort: featured first, then newest year.
-const projects = (await getCollection("projects", ({ data }) => !data.draft)).sort(
-  (a, b) => {
-    if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
-    return b.data.year - a.data.year;
-  }
-);
-
-// Words for the scrolling marquee band.
-const marquee = ["Product Design", "Brand Identity", "Motion", "Web", "Art Direction"];
 ---
 
 <BaseLayout>
@@ -34,7 +22,7 @@ const marquee = ["Product Design", "Brand Identity", "Motion", "Web", "Art Direc
           <h1
             data-hero
             data-split-heading
-            class="font-normal leading-[1.2] tracking-[-0.5px] text-[clamp(1.5rem,4cqw,3.5rem)]"
+            class="font-normal leading-[1.35] tracking-[-0.5px] text-[clamp(1.5rem,4cqw,3.5rem)]"
           >
             An experienced designer bringing creative ideas and technical expertise to
             digital products.
@@ -43,7 +31,7 @@ const marquee = ["Product Design", "Brand Identity", "Motion", "Web", "Art Direc
         <div
           data-portrait
           data-loading
-          class="portrait aspect-[4/5] w-[clamp(16rem,26vw,46rem)] shrink-0 overflow-hidden bg-black"
+          class="portrait aspect-[4/5] w-[clamp(15rem,23vw,42rem)] shrink-0 overflow-hidden bg-black"
         >
           <img src={portrait.src} alt="Suthan" class="portrait__base" />
           <div data-loader-panel class="loader-panel loader-panel--1"></div>
@@ -56,58 +44,12 @@ const marquee = ["Product Design", "Brand Identity", "Motion", "Web", "Art Direc
         <p
           data-hero
           data-split-paragraph
-          class="w-full text-[clamp(0.85rem,1.05vw,1.3rem)] leading-[1.4] tracking-normal lg:w-[clamp(20rem,43vw,52rem)]"
+          class="w-full text-[clamp(0.8rem,0.9vw,1.1rem)] leading-[1.4] tracking-normal lg:w-[clamp(20rem,43vw,52rem)]"
         >
-          I design digital products that are both beautiful and meaningful. Over the past decade, I've worked with startups, design agencies, and SaaS companies turning early ideas into thoughtful, user-centered products.
+          For the past decade I've designed and built digital products end to end, shaping rough, early ideas into things that feel clear and considered. I enjoy working closely with founders, studios, and teams. From early startups to established brands, the aim is always the same: products with a point of view, built to last.
         </p>
       </div>
     </section>
-    <section aria-hidden="true" class="overflow-hidden border-y border-neutral-300 py-5">
-      <div class="marquee-track flex w-max whitespace-nowrap">
-        {[0, 1].map(() => (
-          <div class="flex shrink-0 items-center gap-8 pr-8 text-2xl font-medium tracking-tight sm:text-4xl">
-            {marquee.map((w) => (
-              <>
-                <span>{w}</span>
-                <span class="text-neutral-400">—</span>
-              </>
-            ))}
-          </div>
-        ))}
-      </div>
-    </section>
-    <section id="work" class="w-full px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
-      <div class="mx-auto w-full max-w-[1800px]">
-        <div class="mb-12 flex items-baseline justify-between" data-reveal>
-          <h2 class="font-mono text-xs uppercase tracking-widest text-neutral-500">
-            Selected Work
-          </h2>
-          <span class="font-mono text-xs text-neutral-500">
-            ({String(projects.length).padStart(2, "0")})
-          </span>
-        </div>
-        <div data-card-group class="space-y-20 sm:space-y-32">
-          {projects.map((project, i) => (
-            <ProjectCard project={project} index={i + 1} />
-          ))}
-        </div>
-      </div>
-    </section>
-    <section
-      id="about"
-      class="w-full border-t border-neutral-300 px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
-      data-reveal
-    >
-      <div class="mx-auto w-full max-w-[1800px]">
-        <h2 class="mb-10 font-mono text-xs uppercase tracking-widest text-neutral-500">
-          About
-        </h2>
-        <p class="max-w-4xl font-medium leading-[1.15] tracking-tight text-[clamp(1.5rem,3.5vw,2.75rem)]">
-          I'm Su, a designer focused on the intersection of craft and clarity. I care
-          about the details others skip — motion, rhythm, and the feeling a product
-          leaves behind.
-        </p>
-      </div>
-    </section>
+    <FeaturedWork />
   </main>
 </BaseLayout>

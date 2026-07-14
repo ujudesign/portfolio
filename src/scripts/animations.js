@@ -8,6 +8,9 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 // Flip to false to skip the intro loader while building other pages.
 const ENABLE_LOADER = true;
 
+// Set once Lenis is created; used by other effects that want scroll velocity.
+let lenisInstance = null;
+
 // Entry point. Everything honors reduced-motion.
 export function initAnimations() {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -17,6 +20,85 @@ export function initAnimations() {
   initScrollReveals(reduce);
   initPortrait(reduce);
   initHeroBackground(reduce);
+  initFeatured(reduce);
+}
+
+// Featured work: sticky left column whose title/desc swap (SplitText) as each
+// thumbnail reaches the middle; sliding dot indicator; subtle scroll ripple.
+function initFeatured(reduce) {
+  const section = document.querySelector("[data-featured]");
+  if (!section) return;
+
+  const items = gsap.utils.toArray("[data-fw-item]");
+  const titleEl = section.querySelector("[data-fw-title]");
+  const descEl = section.querySelector("[data-fw-desc]");
+  const active = section.querySelector("[data-fw-active]");
+  const DOT = 17; // px between dot centers
+  let current = -1;
+  let tSplit, dSplit;
+
+  const setContent = (index, item) => {
+    if (index === current) return;
+    current = index;
+    const title = item.dataset.title || "";
+    const desc = item.dataset.desc || "";
+
+    if (active) gsap.to(active, { x: index * DOT, duration: reduce ? 0 : 0.4, ease: "power3.out" });
+
+    if (reduce) {
+      gsap.set([titleEl, descEl], { opacity: 1 });
+      titleEl.textContent = title;
+      descEl.textContent = desc;
+      return;
+    }
+
+    if (tSplit) tSplit.revert();
+    titleEl.textContent = title;
+    gsap.set(titleEl, { opacity: 1 });
+    tSplit = new SplitText(titleEl, { type: "lines", mask: "lines" });
+    gsap.from(tSplit.lines, {
+      yPercent: 110,
+      duration: 0.7,
+      stagger: 0.1,
+      ease: "power3.out",
+      onComplete: () => tSplit && tSplit.revert(),
+    });
+
+    if (dSplit) dSplit.revert();
+    descEl.textContent = desc;
+    gsap.set(descEl, { opacity: 1 });
+    dSplit = new SplitText(descEl, { type: "lines", mask: "lines" });
+    gsap.from(dSplit.lines, {
+      yPercent: 110,
+      duration: 0.6,
+      stagger: 0.05,
+      delay: 0.1,
+      ease: "power3.out",
+      onComplete: () => dSplit && dSplit.revert(),
+    });
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) setContent(parseInt(e.target.dataset.index, 10), e.target);
+      });
+    },
+    { rootMargin: "-50% 0px -50% 0px", threshold: 0 }
+  );
+  items.forEach((it) => io.observe(it));
+
+  // Reveal the first project as the section scrolls into view (before a
+  // thumbnail reaches the exact centre), so the left column isn't blank.
+  const enterIO = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && current === -1) setContent(0, items[0]);
+      });
+    },
+    { threshold: 0.15 }
+  );
+  enterIO.observe(section);
 }
 
 // Faint dot grid behind the hero that lights up near the cursor.
@@ -125,6 +207,7 @@ function initSmoothScroll(reduce) {
   if (reduce) return; // native scroll for reduced-motion
 
   const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+  lenisInstance = lenis;
 
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -160,13 +243,30 @@ function initIntro(reduce) {
     return;
   }
 
-  // Hide the ambient grid while the loader runs; fade it in on reveal.
+  // Pin to the top and lock scrolling for the intro.
+  lockScroll();
   if (heroBg) gsap.set(heroBg, { opacity: 0 });
 
   runLoader(loader).then(() => {
+    unlockScroll();
     if (heroBg) gsap.to(heroBg, { opacity: 1, duration: 1.2, ease: "power2.out" });
     revealHeroContent(false);
   });
+}
+
+function lockScroll() {
+  document.documentElement.classList.add("is-loading");
+  if (lenisInstance) {
+    lenisInstance.scrollTo(0, { immediate: true });
+    lenisInstance.stop();
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+
+function unlockScroll() {
+  document.documentElement.classList.remove("is-loading");
+  if (lenisInstance) lenisInstance.start();
 }
 
 // Counter + grainy fill, then a two-panel curtain slides up to reveal the portrait.

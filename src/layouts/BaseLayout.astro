@@ -31,6 +31,8 @@ const year = new Date().getFullYear();
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />    <script is:inline>
       document.documentElement.classList.add("js");
+      // Always start at the top so the intro loader is tied to the hero.
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     </script>
   </head>
   <body class="text-neutral-900 antialiased">

@@ -1,0 +1,184 @@
+---
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "../styles/global.css";
+
+const darkColors = [
+  { name: "Ink", hex: "#0a0a0a", note: "Hero / dark background" },
+  { name: "Black", hex: "#000000", note: "Portrait box" },
+  { name: "White", hex: "#ffffff", note: "Primary text on dark" },
+  { name: "Neutral 300", hex: "#d4d4d4", note: "Secondary text on dark" },
+  { name: "Muted", hex: "#888888", note: "Mono labels (--color-muted)" },
+];
+
+const lightColors = [
+  { name: "Paper", hex: "#f1f0ea", note: "Light sections background (--bg)" },
+  { name: "Neutral 900", hex: "#171717", note: "Primary text on light" },
+  { name: "Neutral 500", hex: "#737373", note: "Secondary text on light" },
+  { name: "Neutral 300", hex: "#d4d4d4", note: "Borders on light" },
+];
+
+const accents = [
+  { name: "Violet", hex: "#8b5cf6", note: "Curtain 1 / freelance dot" },
+  { name: "Purple", hex: "#6d28d9", note: "Curtain 2" },
+  { name: "Indigo", hex: "#4338ca", note: "Curtain 3" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Styleguide — Suthan</title>
+  </head>
+  <body class="min-h-screen bg-[#0a0a0a] text-white antialiased">
+    <div class="mx-auto max-w-5xl px-6 py-20 sm:px-10">
+      <header class="mb-20">
+        <p class="mb-4 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Suthan — Product Designer / Reference
+        </p>
+        <h1 class="text-4xl font-normal tracking-[-0.5px] sm:text-6xl">Styleguide</h1>
+        <p class="mt-4 max-w-xl text-neutral-400">
+          The tokens and components used across the site — colors, type, and
+          interactive pieces to reference and reuse when building out new sections.
+        </p>
+      </header>
+
+      <!-- Colors -->
+      <section class="mb-20">
+        <h2 class="mb-8 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Colors
+        </h2>
+
+        <h3 class="mb-4 text-sm text-neutral-400">Dark palette</h3>
+        <div class="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {darkColors.map((c) => (
+            <div>
+              <div
+                class="mb-3 aspect-[4/3] rounded-lg border border-white/10"
+                style={`background:${c.hex}`}
+              />
+              <p class="text-sm">{c.name}</p>
+              <p class="font-mono text-xs text-muted">{c.hex}</p>
+              <p class="mt-1 text-xs text-neutral-500">{c.note}</p>
+            </div>
+          ))}
+        </div>
+
+        <h3 class="mb-4 text-sm text-neutral-400">Light palette</h3>
+        <div class="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {lightColors.map((c) => (
+            <div>
+              <div
+                class="mb-3 aspect-[4/3] rounded-lg border border-white/10"
+                style={`background:${c.hex}`}
+              />
+              <p class="text-sm">{c.name}</p>
+              <p class="font-mono text-xs text-muted">{c.hex}</p>
+              <p class="mt-1 text-xs text-neutral-500">{c.note}</p>
+            </div>
+          ))}
+        </div>
+
+        <h3 class="mb-4 text-sm text-neutral-400">Accents (curtain reveal)</h3>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {accents.map((c) => (
+            <div>
+              <div class="mb-3 aspect-[4/3] rounded-lg" style={`background:${c.hex}`} />
+              <p class="text-sm">{c.name}</p>
+              <p class="font-mono text-xs text-muted">{c.hex}</p>
+              <p class="mt-1 text-xs text-neutral-500">{c.note}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- Typography -->
+      <section class="mb-20">
+        <h2 class="mb-8 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Typography
+        </h2>
+        <p class="mb-10 text-sm text-neutral-400">
+          Geist Variable (sans) for display &amp; body · Geist Mono Variable for labels.
+        </p>
+
+        <div class="space-y-10">
+          <div class="border-t border-white/10 pt-6">
+            <p class="mb-3 font-mono text-xs text-muted">
+              Heading · clamp(1.5rem, 4cqw, 3.5rem) · leading 1.35 · tracking -0.5px
+            </p>
+            <p class="font-normal leading-[1.35] tracking-[-0.5px] text-[clamp(1.5rem,3vw,2.5rem)]">
+              An experienced designer bringing creative ideas and technical expertise.
+            </p>
+          </div>
+
+          <div class="border-t border-white/10 pt-6">
+            <p class="mb-3 font-mono text-xs text-muted">
+              Body · clamp(0.8rem, 0.9vw, 1.1rem) · leading 1.4
+            </p>
+            <p class="max-w-xl leading-[1.4] text-[clamp(0.8rem,0.9vw,1.1rem)] text-neutral-300">
+              I design digital products that are both beautiful and meaningful. Over the
+              past decade, I've worked with startups, design agencies, and SaaS companies.
+            </p>
+          </div>
+
+          <div class="border-t border-white/10 pt-6">
+            <p class="mb-3 font-mono text-xs text-muted">
+              Mono label · 10px · uppercase · tracking 0.06em · muted
+            </p>
+            <p class="font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+              Suthan / Product Designer
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Components -->
+      <section class="mb-20">
+        <h2 class="mb-8 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Components
+        </h2>
+
+        <div class="space-y-10">
+          <div class="border-t border-white/10 pt-6">
+            <p class="mb-4 font-mono text-xs text-muted">Freelance link (hover me)</p>
+            <a href="/contact" class="freelance-link font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+              <span class="freelance-dot"></span>
+              <span class="freelance-label">Available for Freelance</span>
+            </a>
+          </div>
+
+          <div class="border-t border-white/10 pt-6">
+            <p class="mb-4 font-mono text-xs text-muted">Status bar</p>
+            <div class="flex w-full items-center justify-between gap-4 border border-white/10 p-4 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+              <span>Suthan / Product Designer</span>
+              <span class="hidden md:block">Currently at Ferrazcreative</span>
+              <span class="hidden md:block">03:48:28 PM / MTL, QC</span>
+              <a href="/contact" class="freelance-link">
+                <span class="freelance-dot"></span>
+                <span class="freelance-label">Available for Freelance</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Motion -->
+      <section>
+        <h2 class="mb-8 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Motion
+        </h2>
+        <ul class="max-w-xl space-y-2 text-sm text-neutral-400">
+          <li>Smooth scroll — Lenis, duration 1.2, synced to the GSAP ticker.</li>
+          <li>Reveals — GSAP power3.out; SplitText line masks for the hero copy.</li>
+          <li>Portrait — WebGL (OGL) hover-displacement ripple with chromatic edges.</li>
+          <li>Dot grid — magnetic pull toward the cursor with distance falloff.</li>
+          <li>All motion respects prefers-reduced-motion.</li>
+        </ul>
+      </section>
+    </div>
+  </body>
+</html>

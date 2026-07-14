@@ -8,7 +8,7 @@ tags:
   - Product Design
 thumbnail: https://picsum.photos/id/327/1920/1280.webp
 url: ''
-featured: true
+featured: false
 draft: false
 blocks:
   - type: text

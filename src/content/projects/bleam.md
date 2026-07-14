@@ -10,7 +10,7 @@ tags:
   - Branding
 thumbnail: https://picsum.photos/id/717/1920/1280.webp
 url: www.google.com
-featured: true
+featured: false
 draft: false
 blocks:
   - type: text

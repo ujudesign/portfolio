@@ -30,9 +30,76 @@ body {
 .js [data-hero],
 .js [data-reveal],
 .js [data-card],
-.js [data-status-item] {
+.js [data-status-item],
+.js [data-fw-hide] {
   opacity: 0;
   will-change: transform, opacity;
+}
+
+/* Lock scrolling while the intro loader runs. */
+html.is-loading,
+html.is-loading body {
+  overflow: hidden;
+}
+
+/* ---- "Available for Freelance" status link ---- */
+.freelance-link {
+  position: relative;
+  transition: color 0.3s ease;
+}
+.freelance-link:hover {
+  color: #fff;
+}
+/* pulsing square dot, shown on hover */
+.freelance-dot {
+  position: absolute;
+  left: -0.9rem;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  background: #8b5cf6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.freelance-link:hover .freelance-dot {
+  opacity: 1;
+  animation: freelance-pulse 1.2s ease-in-out infinite;
+}
+@keyframes freelance-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+}
+/* underline that reveals left-to-right on hover */
+.freelance-label {
+  position: relative;
+}
+.freelance-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s ease;
+}
+.freelance-link:hover .freelance-label::after {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .freelance-link:hover .freelance-dot {
+    animation: none;
+  }
 }
 
 /* ---- Hero ambient background (dots + cursor glow + grain) ---- */
