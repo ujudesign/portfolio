@@ -14,12 +14,20 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
 
 {
   featured.length > 0 && (
-    <section
-      data-featured
-      class="relative bg-[#e2e2e2] px-[clamp(1rem,1.6vw,2.5rem)] text-[#0a0a0a]"
-    >
+    <section data-featured class="relative bg-[#e2e2e2] text-[#0a0a0a]">
+      {/* Elastic top edge: bows up into the hero with scroll velocity, springs flat */}
+      <svg
+        data-stretch
+        aria-hidden="true"
+        class="pointer-events-none absolute inset-x-0 bottom-full h-[110px] w-full"
+        viewBox="0 0 1000 100"
+        preserveAspectRatio="none"
+      >
+        <path data-stretch-path fill="#e2e2e2" d="M0,100 Q500,100 1000,100 Z" />
+      </svg>
+
       {/* Left column ends at the hero portrait's left edge: 50% minus half the portrait width */}
-      <div class="grid w-full lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr]">
+      <div class="grid w-full px-[clamp(1rem,1.6vw,2.5rem)] lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr]">
         <div class="relative">
           <div class="flex min-h-screen flex-col pt-[140px] pr-[clamp(1.5rem,4vw,5rem)] lg:sticky lg:top-0 lg:h-screen">
             <p class="mb-6 font-mono text-[10px] uppercase tracking-[0.06em]">

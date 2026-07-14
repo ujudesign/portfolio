@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 export default defineConfig({
   // Update this to your real domain before going live (used for sitemap/SEO).
-  site: "https://your-domain.com",
+  site: "https://suthan.design",
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

@@ -21,6 +21,42 @@ export function initAnimations() {
   initPortrait(reduce);
   initHeroBackground(reduce);
   initFeatured(reduce);
+  initSectionStretch(reduce);
+}
+
+// Elastic top edge on the featured section: an SVG curve that bows up with
+// scroll velocity near the seam, then springs back flat.
+function initSectionStretch(reduce) {
+  const section = document.querySelector("[data-featured]");
+  const path = section && section.querySelector("[data-stretch-path]");
+  if (!section || !path || reduce || !lenisInstance) return;
+
+  const MAX = 58; // max bow in viewBox units
+  let bow = 0;
+  let vel = 0;
+
+  gsap.ticker.add(() => {
+    const rect = section.getBoundingClientRect();
+    const near = rect.top > -80 && rect.top < window.innerHeight;
+    const v = Math.abs(lenisInstance.velocity || 0);
+    const target = near ? Math.min(MAX, v * 1.15) : 0;
+
+    // spring toward target (overshoots slightly for the elastic snap)
+    vel += (target - bow) * 0.1;
+    vel *= 0.72;
+    bow += vel;
+
+    // settle exactly flat once it's basically at rest
+    if (target === 0 && Math.abs(bow) < 0.05 && Math.abs(vel) < 0.05) {
+      if (bow !== 0) {
+        bow = 0;
+        vel = 0;
+        path.setAttribute("d", "M0,100 Q500,100 1000,100 Z");
+      }
+      return;
+    }
+    path.setAttribute("d", `M0,100 Q500,${(100 - 2 * bow).toFixed(1)} 1000,100 Z`);
+  });
 }
 
 // Featured work: sticky left column whose title/desc swap (SplitText) as each

@@ -1,11 +1,14 @@
 ---
-title: Vellum Reader
+title: Headspace
 description: A focused reading app designed around comfort — typography, pacing, and a distraction-free canvas.
 year: 2024
 role: Product Designer
 client: Vellum
-tags: [Mobile, Product Design]
-thumbnail: ../../assets/uploads/vellum-thumb.jpg
+tags:
+  - Mobile
+  - Product Design
+thumbnail: https://picsum.photos/id/154/1920/1280.webp
+url: ''
 featured: true
 draft: false
 ---
