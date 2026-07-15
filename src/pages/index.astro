@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FeaturedWork from "../components/FeaturedWork.astro";
+import Philosophy from "../components/Philosophy.astro";
 // Import the portrait as a plain static asset (served directly, no runtime
 // image endpoint) so it works on any static host. Replace src/assets/portrait.jpg
 // with the real photo (keep it web-sized, ~2000px).
@@ -55,5 +56,6 @@ import portrait from "../assets/portrait.jpg";
       </div>
     </section>
     <FeaturedWork />
+    <Philosophy />
   </main>
 </BaseLayout>

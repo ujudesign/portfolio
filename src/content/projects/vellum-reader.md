@@ -7,8 +7,8 @@ client: Vellum
 tags:
   - Mobile
   - Product Design
-thumbnail: ../../assets/uploads/vellum-a.jpg
-thumbnailHover: ../../assets/uploads/vellum-b.jpg
+thumbnail: https://picsum.photos/id/1021/1920/1280.webp
+thumbnailHover: https://picsum.photos/id/302/1920/1280.webp
 url: ''
 featured: true
 draft: false

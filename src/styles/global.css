@@ -31,7 +31,8 @@ body {
 .js [data-reveal],
 .js [data-card],
 .js [data-status-item],
-.js [data-fw-hide] {
+.js [data-fw-hide],
+.js [data-split-reveal] {
   opacity: 0;
   will-change: transform, opacity;
 }

@@ -8,8 +8,8 @@ tags:
   - Product Design
   - Data Viz
   - Web
-thumbnail: ../../assets/uploads/northwind-a.jpg
-thumbnailHover: ../../assets/uploads/northwind-b.jpg
+thumbnail: https://picsum.photos/id/231/1920/1280.webp
+thumbnailHover: https://picsum.photos/id/825/1920/1280.webp
 url: ''
 featured: true
 draft: false

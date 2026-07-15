@@ -1,0 +1,62 @@
+---
+const paragraphs = [
+  "I believe good product design is mostly judgment: the hundreds of small choices about what to keep, what to cut, and how something should feel to use. None of them show up on a feature list, but you feel all of them. I care about clarity over cleverness, and I think a product that stands for something will always outlast one built to please everyone.",
+  "We're at a point where almost anything can be generated in seconds, which is exactly why the human parts matter more. AI is a useful tool and I use it, but taste, intent, and knowing when something is done still come from a person. I want to make work that feels made by someone who cared about every choice. When anyone can produce endless options, what still stands out is a real human perspective.",
+];
+
+const skillset = [
+  "Web / App / Product Design",
+  "Design Systems",
+  "Web Development",
+  "Webflow, Framer, Shopify",
+  "AI Tools",
+];
+
+const experience = [
+  "Current - Senior Product Designer at Ferraz Creative",
+  "Current - Freelance Designer/Developer",
+  "Past - Product Designer at HFS",
+  "Past - Product Designer at FYI/Nira",
+  "Past - Product Designer at MetaLab, 3magine, PasswordBox",
+];
+
+// Left column ends at the hero portrait's left edge (same as Featured Work).
+const colWidth = "lg:w-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))]";
+---
+
+<section class="relative min-h-screen bg-[#0a0a0a] text-white">
+  <div class="flex min-h-screen flex-col items-start justify-between px-[clamp(1rem,1.6vw,2.5rem)] pt-[140px] pb-[clamp(2rem,6vh,4.5rem)]">
+    <div class={`w-full ${colWidth}`}>
+      <h2
+        data-split-reveal
+        class="font-normal leading-[1.1] tracking-[-0.5px] text-[clamp(1.375rem,1.8vw,2.25rem)]"
+      >
+        My design philosophy
+      </h2>
+      <div class="mt-6 space-y-5 text-[clamp(0.8rem,0.9vw,1.1rem)] leading-[1.4] tracking-normal">
+        {paragraphs.map((p) => (
+          <p data-split-reveal>{p}</p>
+        ))}
+      </div>
+    </div>
+
+    <div class={`mt-16 grid w-full grid-cols-2 gap-8 ${colWidth}`}>
+      <div data-split-reveal>
+        <p class="mb-5 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Skillset
+        </p>
+        <ul class="space-y-1 leading-[1.3] text-[clamp(0.75rem,0.8vw,0.9rem)] text-neutral-400">
+          {skillset.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+      <div data-split-reveal>
+        <p class="mb-5 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+          Experience
+        </p>
+        <ul class="space-y-1 leading-[1.3] text-[clamp(0.75rem,0.8vw,0.9rem)] text-neutral-400">
+          {experience.map((e) => <li>{e}</li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

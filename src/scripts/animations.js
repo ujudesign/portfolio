@@ -22,6 +22,42 @@ export function initAnimations() {
   initHeroBackground(reduce);
   initFeatured(reduce);
   initSectionStretch(reduce);
+  initSplitReveals(reduce);
+}
+
+// SplitText line reveal for headings, triggered when they scroll into view.
+function initSplitReveals(reduce) {
+  const els = gsap.utils.toArray("[data-split-reveal]");
+  if (!els.length) return;
+
+  if (reduce) {
+    gsap.set(els, { opacity: 1 });
+    return;
+  }
+
+  const run = () => {
+    els.forEach((el) => {
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+          gsap.set(el, { opacity: 1 });
+          const split = new SplitText(el, { type: "lines", mask: "lines" });
+          gsap.from(split.lines, {
+            yPercent: 110,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power3.out",
+            onComplete: () => split.revert(),
+          });
+        },
+      });
+    });
+  };
+
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  else run();
 }
 
 // Elastic top edge on the featured section: an SVG curve that bows up with
