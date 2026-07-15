@@ -37,7 +37,7 @@ function initTextTrail(reduce) {
     "Intent",
     "Clarity",
     "Craft",
-    "Judgment",
+    "Human",
     "Restraint",
     "Care",
     "Detail",
@@ -70,10 +70,11 @@ function initTextTrail(reduce) {
     wi++;
     el.style.zIndex = String(++z);
     gsap.killTweensOf(el);
-    gsap.set(el, { x, y, "--stroke": 0.9, "--ink": 1, "--bg": 1 });
+    gsap.set(el, { x, y, "--stroke": 0.9, "--ink": 1, "--bg": 1, filter: "blur(0px)" });
     gsap.to(el, { "--stroke": 0, duration: 0.9, ease: "power1.out" }); // border fades first
     gsap.to(el, { "--bg": 0, duration: 1.4, ease: "power2.out" }); // fill fades with text
     gsap.to(el, { "--ink": 0, duration: 1.4, ease: "power2.out" }); // text lingers
+    gsap.to(el, { filter: "blur(9px)", duration: 1.4, ease: "power2.in" }); // blurs as it dies
   };
 
   window.addEventListener("pointermove", (e) => {
@@ -430,7 +431,7 @@ function unlockScroll() {
   if (lenisInstance) lenisInstance.start();
 }
 
-// Counter + grainy fill, then a two-panel curtain slides up to reveal the portrait.
+// Counter + progress line, then a 3-tone curtain sweeps the whole page up.
 function runLoader(loader) {
   return new Promise((resolve) => {
     const num = loader.querySelector("[data-loader-num]");
@@ -463,7 +464,6 @@ function runLoader(loader) {
       loader.style.display = "none";
       panels.forEach((p) => (p.style.display = "none"));
       if (line) line.style.display = "none";
-      loader.closest("[data-portrait]")?.removeAttribute("data-loading");
       resolve();
     });
   });
@@ -474,9 +474,10 @@ function revealHeroContent(reduce) {
   const statusItems = gsap.utils.toArray("[data-status-item]");
   const heading = document.querySelector("[data-split-heading]");
   const paragraph = document.querySelector("[data-split-paragraph]");
+  const portrait = document.querySelector("[data-hero-portrait]");
 
   if (reduce) {
-    gsap.set([...statusItems, heading, paragraph], { opacity: 1, clearProps: "transform" });
+    gsap.set([...statusItems, heading, paragraph, portrait], { opacity: 1, clearProps: "transform" });
     return;
   }
 
@@ -500,6 +501,16 @@ function revealHeroContent(reduce) {
       gsap.set(paragraph, { opacity: 1 });
       const splitP = new SplitText(paragraph, { type: "lines", mask: "lines" });
       tl.from(splitP.lines, { yPercent: 110, duration: 0.8, stagger: 0.06, onComplete: () => splitP.revert() }, 0.3);
+    }
+
+    // portrait — fade in and up
+    if (portrait) {
+      tl.fromTo(
+        portrait,
+        { opacity: 0, y: 48 },
+        { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" },
+        0.35
+      );
     }
   };
 

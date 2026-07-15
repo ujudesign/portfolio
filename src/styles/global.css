@@ -28,6 +28,7 @@ body {
 /* GSAP-animated elements start hidden. The `.js` class is added by a blocking
    head script so there's no flash; if JS is off, nothing is hidden. */
 .js [data-hero],
+.js [data-hero-portrait],
 .js [data-reveal],
 .js [data-card],
 .js [data-status-item],
@@ -64,7 +65,7 @@ html.is-loading body {
   font-size: 16px;
   line-height: 1;
   pointer-events: none;
-  will-change: transform;
+  will-change: transform, filter;
 }
 
 /* ---- Progressive blur at the top of the viewport ---- */
@@ -216,45 +217,41 @@ html.is-loading body {
   z-index: 1;
 }
 
-/* Intro loader (fills the portrait box, then curtains up to reveal it) */
-.loader-panel {
-  position: absolute;
+/* Full-page intro loader: centered counter + line, then a 3-tone curtain
+   sweeps the whole page up to reveal it. */
+.loader-overlay {
+  position: fixed;
   inset: 0;
-}
-.loader-panel--1 {
-  z-index: 4;
-  background: #8b5cf6;
-}
-.loader-panel--2 {
-  z-index: 3;
-  background: #6d28d9;
-}
-.loader-panel--3 {
-  z-index: 2;
-  background: #4338ca;
-}
-.loader {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-/* gap around the box so the progress line doesn't touch it (loading only) */
-.portrait[data-loading] {
-  box-shadow: 0 0 0 24px #0a0a0a;
+.loader-panel {
+  position: fixed;
+  inset: 0;
 }
-/* thin progress line that draws across the hero, behind the box */
+.loader-panel--1 {
+  z-index: 99;
+  background: #8b5cf6;
+}
+.loader-panel--2 {
+  z-index: 98;
+  background: #6d28d9;
+}
+.loader-panel--3 {
+  z-index: 97;
+  background: #4338ca;
+}
+/* thin progress line that draws across the page center */
 .loader-line {
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 0;
   height: 1px;
   transform: scaleX(0);
   transform-origin: left center;
@@ -263,7 +260,9 @@ html.is-loading body {
 .loader-count {
   position: relative;
   z-index: 1;
-  font-size: 1.25rem;
+  padding: 0 1.5rem; /* gap in the line around the number */
+  background: #0a0a0a; /* matches overlay so the line reads as ----- 59% ----- */
+  font-size: 2rem;
   letter-spacing: -0.01em;
   color: #fff;
 }

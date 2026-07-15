@@ -9,29 +9,45 @@ import portrait from "../assets/portrait.jpg";
 ---
 
 <BaseLayout>
-  <main>    <section class="relative flex min-h-screen items-center overflow-hidden bg-[#0a0a0a] px-[clamp(1rem,1.6vw,2.5rem)] text-white">
+  <main>
+    {/* Full-page intro loader: counter + line, then a 3-tone curtain sweeps the page */}
+    <div data-loader class="loader-overlay" aria-hidden="true">
+      <div data-loader-line class="loader-line"></div>
+      <div class="loader-count"><span data-loader-num>0</span>%</div>
+    </div>
+    <div data-loader-panel class="loader-panel loader-panel--1"></div>
+    <div data-loader-panel class="loader-panel loader-panel--2"></div>
+    <div data-loader-panel class="loader-panel loader-panel--3"></div>
+
+    <section class="relative min-h-screen overflow-hidden bg-[#0a0a0a] px-[clamp(1rem,1.6vw,2.5rem)] text-white">
       <div data-hero-bg aria-hidden="true" class="hero-bg absolute inset-0">
         <canvas data-hero-dots class="hero-dots"></canvas>
         <div class="hero-grain"></div>
       </div>
-      <div data-loader-line class="loader-line"></div>
-      <div
-        class="relative z-10 flex w-full flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-[clamp(3rem,4.5vw,8rem)]"
-      >        <div class="w-full lg:w-[clamp(20rem,43vw,52rem)] [container-type:inline-size]">
-          <h1
-            data-hero
-            data-split-heading
-            class="font-normal leading-[1.35] tracking-[-0.5px] text-[clamp(1.5rem,4cqw,3.5rem)]"
-          >
-            An experienced designer bringing creative ideas and technical expertise to
-            digital products.
-          </h1>
-        </div>
-        <div
-          data-portrait
-          data-loading
-          class="portrait aspect-[4/5] w-[clamp(15rem,23vw,42rem)] shrink-0 overflow-hidden bg-black"
+
+      <div class="relative z-10 w-full pt-[clamp(3.5rem,7vh,6.5rem)] [container-type:inline-size] lg:w-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))]">
+        <h1
+          data-hero
+          data-split-heading
+          class="font-normal leading-[1.15] tracking-[-0.5px] text-[clamp(1.75rem,4.3cqw,4.25rem)]"
         >
+          An experienced designer bringing creative ideas and technical expertise to
+          digital products.
+        </h1>
+        <p
+          data-hero
+          data-split-paragraph
+          class="mt-[clamp(1.25rem,2vw,2rem)] text-[clamp(0.8rem,0.9vw,1.1rem)] leading-[1.4] tracking-normal"
+        >
+          For the past decade I've designed and built digital products end to end, shaping rough, early ideas into things that feel clear and considered. I enjoy working closely with founders, studios, and teams. From early startups to established brands, the aim is always the same: products with a point of view, built to last.
+        </p>
+      </div>
+
+      <div
+        data-hero-portrait
+        class="absolute bottom-[clamp(1rem,1.6vw,2.5rem)] right-[clamp(1rem,1.6vw,2.5rem)] z-10 aspect-[4/5] w-[clamp(11rem,19vw,24rem)]"
+      >
+        <div data-portrait class="portrait h-full w-full overflow-hidden bg-black">
           <img
             src={portrait.src}
             width={portrait.width}
@@ -39,20 +55,7 @@ import portrait from "../assets/portrait.jpg";
             alt="Suthan"
             class="portrait__base"
           />
-          <div data-loader-panel class="loader-panel loader-panel--1"></div>
-          <div data-loader-panel class="loader-panel loader-panel--2"></div>
-          <div data-loader-panel class="loader-panel loader-panel--3"></div>
-          <div data-loader class="loader">
-            <div class="loader-count"><span data-loader-num>0</span>%</div>
-          </div>
         </div>
-        <p
-          data-hero
-          data-split-paragraph
-          class="w-full text-[clamp(0.8rem,0.9vw,1.1rem)] leading-[1.4] tracking-normal lg:w-[clamp(20rem,43vw,52rem)]"
-        >
-          For the past decade I've designed and built digital products end to end, shaping rough, early ideas into things that feel clear and considered. I enjoy working closely with founders, studios, and teams. From early startups to established brands, the aim is always the same: products with a point of view, built to last.
-        </p>
       </div>
     </section>
     <FeaturedWork />
