@@ -33,7 +33,11 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
       <div class="grid w-full px-[clamp(1rem,1.6vw,2.5rem)] lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr]">
         <div class="relative">
           <div class="flex min-h-screen flex-col pt-[140px] pr-[clamp(1.5rem,4vw,5rem)] lg:sticky lg:top-0 lg:h-screen">
-            <p class="mb-6 font-mono text-[10px] uppercase tracking-[0.06em]">
+            <p
+              data-fw-label
+              data-fw-hide
+              class="mb-6 font-mono text-[10px] uppercase tracking-[0.06em]"
+            >
               Featured Work / YR {lo}–{hi}
             </p>
             <h2
@@ -65,7 +69,7 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
           </div>
         </div>
 
-        <div class="flex flex-col gap-[clamp(3rem,8vh,8rem)] py-[clamp(6rem,16vh,14rem)]">
+        <div class="flex flex-col gap-[clamp(3rem,8vh,8rem)] pt-[140px] pb-[clamp(6rem,16vh,14rem)]">
           {featured.map((p, i) => (
             <a
               href={`/work/${p.id}`}

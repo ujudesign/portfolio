@@ -105,6 +105,7 @@ function initFeatured(reduce) {
   const titleEl = section.querySelector("[data-fw-title]");
   const descEl = section.querySelector("[data-fw-desc]");
   const active = section.querySelector("[data-fw-active]");
+  const label = section.querySelector("[data-fw-label]");
   const DOT = 17; // px between dot centers
   let current = -1;
   let tSplit, dSplit;
@@ -160,15 +161,31 @@ function initFeatured(reduce) {
   );
   items.forEach((it) => io.observe(it));
 
-  // Reveal the first project as the section scrolls into view (before a
-  // thumbnail reaches the exact centre), so the left column isn't blank.
+  // SplitText reveal for the "Featured Work" label (once, on enter).
+  const revealLabel = () => {
+    if (!label) return;
+    gsap.set(label, { opacity: 1 });
+    if (reduce) return;
+    const s = new SplitText(label, { type: "lines", mask: "lines" });
+    gsap.from(s.lines, {
+      yPercent: 110,
+      duration: 0.6,
+      ease: "power3.out",
+      onComplete: () => s.revert(),
+    });
+  };
+
+  // Reveal the label + first project as the section starts scrolling into view.
   const enterIO = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting && current === -1) setContent(0, items[0]);
+        if (e.isIntersecting && current === -1) {
+          revealLabel();
+          setContent(0, items[0]);
+        }
       });
     },
-    { threshold: 0.15 }
+    { threshold: 0, rootMargin: "0px 0px -20% 0px" }
   );
   enterIO.observe(section);
 }
