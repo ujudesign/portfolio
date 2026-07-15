@@ -7,7 +7,8 @@ client: Cadence
 tags:
   - Product Design
   - Web
-thumbnail: https://picsum.photos/id/168/1920/1280.webp
+thumbnail: ../../assets/uploads/kadence-a.jpg
+thumbnailHover: ../../assets/uploads/kadence-b.jpg
 url: ''
 featured: true
 draft: false

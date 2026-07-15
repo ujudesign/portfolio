@@ -7,7 +7,8 @@ client: Halo
 tags:
   - Design Systems
   - Product Design
-thumbnail: https://picsum.photos/id/51/1920/1280.webp
+thumbnail: ../../assets/uploads/1.jpg
+thumbnailHover: ../../assets/uploads/2.png
 url: ''
 featured: true
 draft: false

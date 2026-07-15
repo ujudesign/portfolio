@@ -37,6 +37,13 @@ const year = new Date().getFullYear();
   </head>
   <body class="text-neutral-900 antialiased">
     <Header />
+    <div class="progressive-blur" aria-hidden="true">
+      <div class="progressive-blur__layer is--1"></div>
+      <div class="progressive-blur__layer is--2"></div>
+      <div class="progressive-blur__layer is--3"></div>
+      <div class="progressive-blur__layer is--4"></div>
+      <div class="progressive-blur__layer is--5"></div>
+    </div>
     <slot />
     <footer class="w-full border-t border-neutral-300 px-6 py-10 sm:px-10 lg:px-16">
       <div

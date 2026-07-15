@@ -1,10 +1,13 @@
 ---
 import { getCollection } from "astro:content";
-import SmartImage from "./SmartImage.astro";
 
 const featured = (
   await getCollection("projects", ({ data }) => data.featured && !data.draft)
 ).sort((a, b) => b.data.year - a.data.year);
+
+// Resolve an image field (local ImageMetadata or remote URL string) to a plain
+// static URL — bypasses Astro's runtime image endpoint so it works on any host.
+const url = (img) => (typeof img === "string" ? img : img?.src);
 
 const first = featured[0];
 const years = featured.map((f) => f.data.year);
@@ -70,19 +73,25 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
               data-index={i}
               data-title={p.data.title}
               data-desc={p.data.description}
-              class="fw-item block"
+              class="fw-item group block"
             >
               <div
                 data-reveal
-                class="fw-thumb aspect-[16/10] w-full overflow-hidden bg-neutral-300"
+                class="relative aspect-[16/10] w-full overflow-hidden bg-neutral-300"
               >
-                <SmartImage
-                  src={p.data.thumbnail}
+                <img
+                  src={url(p.data.thumbnail)}
                   alt={p.data.title}
-                  widths={[600, 1000, 1600]}
-                  sizes="60vw"
-                  class="h-full w-full object-cover"
+                  class="absolute inset-0 h-full w-full object-cover"
                 />
+                {url(p.data.thumbnailHover) && (
+                  <img
+                    src={url(p.data.thumbnailHover)}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100 motion-reduce:transition-none"
+                  />
+                )}
               </div>
             </a>
           ))}

@@ -34,7 +34,8 @@ collections:
       - { label: Role, name: role, widget: string, required: false }
       - { label: Client, name: client, widget: string, required: false }
       - { label: Tags, name: tags, widget: list, required: false }
-      - { label: Thumbnail, name: thumbnail, widget: image, hint: "Cover image for the homepage grid." }
+      - { label: Thumbnail, name: thumbnail, widget: image, hint: "Cover image shown in the featured list." }
+      - { label: Hover thumbnail, name: thumbnailHover, widget: image, required: false, hint: "Second image revealed on hover (optional)." }
       - { label: External URL, name: url, widget: string, required: false }
       - { label: Featured, name: featured, widget: boolean, default: false }
       - { label: Draft, name: draft, widget: boolean, default: false }
