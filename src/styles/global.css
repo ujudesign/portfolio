@@ -43,6 +43,30 @@ html.is-loading body {
   overflow: hidden;
 }
 
+/* ---- Cursor text trail (philosophy section) ---- */
+.trail-word {
+  --stroke: 0; /* border alpha (fades first) */
+  --ink: 0; /* text alpha   (lingers)     */
+  --bg: 0; /* fill alpha   (occludes)    */
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 10px 16px;
+  background: rgba(10, 10, 10, var(--bg));
+  border: 1px solid rgba(255, 255, 255, var(--stroke));
+  color: rgba(255, 255, 255, var(--ink));
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
+  will-change: transform;
+}
+
 /* ---- Progressive blur at the top of the viewport ---- */
 .progressive-blur {
   z-index: 40;

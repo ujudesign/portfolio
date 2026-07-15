@@ -23,6 +23,78 @@ export function initAnimations() {
   initFeatured(reduce);
   initSectionStretch(reduce);
   initSplitReveals(reduce);
+  initTextTrail(reduce);
+}
+
+// Cursor text trail on the right of the philosophy section: as the pointer
+// moves, words are dropped along its path, each fading + shrinking out.
+function initTextTrail(reduce) {
+  const host = document.querySelector("[data-trail]");
+  if (!host || reduce) return;
+
+  const words = [
+    "Taste",
+    "Intent",
+    "Clarity",
+    "Craft",
+    "Judgment",
+    "Restraint",
+    "Care",
+    "Detail",
+    "Perspective",
+    "Experience",
+  ];
+  const POOL = 24; // recycled span elements
+  const THRESHOLD = 50; // px of travel between drops
+
+  const pool = [];
+  for (let i = 0; i < POOL; i++) {
+    const el = document.createElement("span");
+    el.className = "trail-word";
+    host.appendChild(el);
+    pool.push(el);
+  }
+  gsap.set(pool, { xPercent: -50, yPercent: -50, "--stroke": 0, "--ink": 0, "--bg": 0 });
+
+  let idx = 0; // next pool slot
+  let wi = 0; // next word
+  let z = 0; // rising stack so the newest sits on top
+  let lastX = 0;
+  let lastY = 0;
+  let primed = false; // reset each time the pointer (re)enters the column
+
+  const drop = (x, y) => {
+    const el = pool[idx % pool.length];
+    idx++;
+    el.textContent = words[wi % words.length];
+    wi++;
+    el.style.zIndex = String(++z);
+    gsap.killTweensOf(el);
+    gsap.set(el, { x, y, "--stroke": 0.9, "--ink": 1, "--bg": 1 });
+    gsap.to(el, { "--stroke": 0, duration: 0.9, ease: "power1.out" }); // border fades first
+    gsap.to(el, { "--bg": 0, duration: 1.4, ease: "power2.out" }); // fill fades with text
+    gsap.to(el, { "--ink": 0, duration: 1.4, ease: "power2.out" }); // text lingers
+  };
+
+  window.addEventListener("pointermove", (e) => {
+    const r = host.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    if (x < 0 || x > r.width || y < 0 || y > r.height) {
+      primed = false; // pointer left the column
+      return;
+    }
+    if (!primed) {
+      lastX = x;
+      lastY = y;
+      primed = true;
+      return;
+    }
+    if (Math.hypot(x - lastX, y - lastY) < THRESHOLD) return;
+    lastX = x;
+    lastY = y;
+    drop(x, y);
+  });
 }
 
 // SplitText line reveal for headings, triggered when they scroll into view.

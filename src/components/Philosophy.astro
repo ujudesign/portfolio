@@ -24,8 +24,13 @@ const experience = [
 const colWidth = "lg:w-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))]";
 ---
 
-<section class="relative min-h-screen bg-[#0a0a0a] text-white">
-  <div class="flex min-h-screen flex-col items-start justify-between p-[clamp(1rem,1.6vw,2.5rem)]">
+<section class="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white">
+  <div
+    data-trail
+    class="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden lg:block"
+    aria-hidden="true"
+  ></div>
+  <div class="relative z-10 flex min-h-screen flex-col items-start justify-between p-[clamp(1rem,1.6vw,2.5rem)]">
     <div class={`w-full ${colWidth}`}>
       <h2
         data-split-reveal
