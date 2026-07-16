@@ -32,6 +32,7 @@ collections:
       - { label: Short description, name: description, widget: text, hint: "One line shown on the homepage card." }
       - { label: Year, name: year, widget: number, value_type: int, min: 1990, max: 2100 }
       - { label: Role, name: role, widget: string, required: false }
+      - { label: Agency, name: agency, widget: string, required: false }
       - { label: Client, name: client, widget: string, required: false }
       - { label: Tags, name: tags, widget: list, required: false }
       - { label: Thumbnail, name: thumbnail, widget: image, hint: "Cover image shown in the featured list." }

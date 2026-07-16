@@ -3,6 +3,7 @@ title: Kadence
 description: Scheduling reimagined around intent, making it effortless to find time without the back-and-forth.
 year: 2024
 role: Product Designer
+agency: Ferraz Creative
 client: Cadence
 tags:
   - Product Design

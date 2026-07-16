@@ -3,6 +3,7 @@ title: Tekna
 description: tekna project hello hello
 year: 2026
 role: Senior Product Designer
+agency: Ferraz Creative
 client: tekna
 tags:
   - Product Design

@@ -2,7 +2,6 @@
 import { getCollection, render } from "astro:content";
 import { marked } from "marked";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import SmartImage from "../../components/SmartImage.astro";
 
 // One static page per project, generated at build time.
 export async function getStaticPaths() {
@@ -14,11 +13,25 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const { title, description, year, role, client, tags, url, blocks } = project.data;
+const { title, description, year, role, agency, client, tags, url, thumbnail, thumbnailHover, blocks } =
+  project.data;
 const { Content } = await render(project);
 
 // Render the markdown body only if there's actual text after the frontmatter.
 const hasBody = (project.body ?? "").trim().length > 0;
+
+// Resolve an image field (local ImageMetadata or remote URL string) to a plain
+// static URL — bypasses Astro's runtime image endpoint so it works on any host.
+const src = (img) => (typeof img === "string" ? img : img?.src);
+
+// Left-column meta pairs (only the ones that are set).
+const meta = [
+  { label: "Year", value: String(year) },
+  role && { label: "Role", value: role },
+  agency && { label: "Agency", value: agency },
+  client && { label: "Client", value: client },
+  tags.length > 0 && { label: "Discipline", value: tags.join(", ") },
+].filter(Boolean);
 
 // Tailwind column classes per gallery layout.
 const galleryCols: Record<string, string> = {
@@ -28,100 +41,114 @@ const galleryCols: Record<string, string> = {
 };
 ---
 
-<BaseLayout title={`${title} — Suthan`} description={description}>
-  <main class="w-full px-6 pt-32 pb-24 sm:px-10 lg:px-16">
-    <div class="mx-auto w-full max-w-[1600px]">
-      <a
-        href="/#work"
-        class="font-mono text-xs uppercase tracking-widest text-neutral-500 transition-colors hover:text-neutral-900"
-      >
-        ← Back to work
-      </a>
-      <header class="mt-10 max-w-4xl" data-reveal>
-        <h1 class="font-medium leading-[0.98] tracking-[-0.02em] text-[clamp(2.25rem,6vw,5.5rem)]">
-          {title}
-        </h1>
-        <p class="mt-6 max-w-2xl text-lg text-neutral-500">{description}</p>
-
-        <dl class="mt-10 grid grid-cols-2 gap-6 border-t border-neutral-300 pt-8 sm:grid-cols-4">
-          <div>
-            <dt class="font-mono text-xs uppercase tracking-widest text-neutral-500">Year</dt>
-            <dd class="mt-1 text-neutral-900">{year}</dd>
-          </div>
-          {role && (
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-widest text-neutral-500">Role</dt>
-              <dd class="mt-1 text-neutral-900">{role}</dd>
-            </div>
-          )}
-          {client && (
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-widest text-neutral-500">Client</dt>
-              <dd class="mt-1 text-neutral-900">{client}</dd>
-            </div>
-          )}
-          {tags.length > 0 && (
-            <div class="col-span-2">
-              <dt class="font-mono text-xs uppercase tracking-widest text-neutral-500">
-                Discipline
-              </dt>
-              <dd class="mt-1 text-neutral-900">{tags.join(", ")}</dd>
-            </div>
-          )}
-        </dl>
-
-        {url && (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-8 inline-block text-sm text-neutral-900 underline underline-offset-4 hover:text-neutral-500"
+<BaseLayout title={`${title} — Suthan`} description={description} enterCurtain={true}>
+  <main class="min-h-screen bg-[#0a0a0a] text-white">
+    <div
+      class="grid w-full px-[clamp(1rem,1.6vw,2.5rem)] lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr]"
+    >
+      {/* Left: sticky project meta */}
+      <div class="relative [container-type:inline-size]">
+        <div
+          class="flex flex-col pt-[clamp(3.5rem,7vh,6.5rem)] pb-16 pr-[clamp(2rem,5.2vw,7rem)] lg:sticky lg:top-0 lg:h-screen"
+        >
+          <h1
+            data-case-reveal
+            class="font-normal leading-[1.1] tracking-[-0.5px] text-[clamp(1.75rem,4.3cqw,4.25rem)]"
           >
-            Visit live project ↗
-          </a>
+            {title}
+          </h1>
+          <p
+            data-case-reveal
+            class="mt-6 text-[clamp(0.8rem,0.9vw,1.1rem)] leading-[1.4] text-white"
+          >
+            {description}
+          </p>
+
+          <dl class="mt-10 grid grid-cols-2 gap-x-8 gap-y-8">
+            {meta.map((m) => (
+              <div data-case-reveal>
+                <dt class="mb-3 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+                  {m.label}
+                </dt>
+                <dd class="leading-[1.3] text-[clamp(0.75rem,0.8vw,0.9rem)] text-neutral-400">
+                  {m.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          {url && (
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-10 inline-block font-mono text-[10px] uppercase tracking-[0.06em] text-muted transition-colors hover:text-white"
+            >
+              Visit live project ↗
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Right: hero image, optional overview, then content blocks */}
+      <div class="flex flex-col gap-[clamp(2.5rem,6vh,6rem)] pt-[clamp(3.5rem,7vh,6.5rem)] pb-[clamp(6rem,16vh,14rem)]">
+        <div data-reveal class="aspect-[16/10] w-full overflow-hidden bg-neutral-800">
+          <img src={src(thumbnail)} alt={title} class="h-full w-full object-cover" />
+        </div>
+
+        {thumbnailHover && (
+          <div data-reveal class="aspect-[16/10] w-full overflow-hidden bg-neutral-800">
+            <img src={src(thumbnailHover)} alt={title} class="h-full w-full object-cover" />
+          </div>
         )}
-      </header>
-      {hasBody && (
-        <article class="prose mt-16" data-reveal>
-          <Content />
-        </article>
-      )}
-      {blocks.map((block) =>
-        block.type === "text" ? (
-          <section class="mt-20 max-w-2xl" data-reveal>
-            {block.heading && (
-              <h2 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
-                {block.heading}
-              </h2>
-            )}
-            <div class="prose" set:html={marked.parse(block.body) as string} />
-          </section>
-        ) : (
-          <section class="mt-20">
-            <div data-card-group class:list={["grid gap-4", galleryCols[block.layout]]}>
-              {block.images.map((img, i) => (
-                <div
-                  data-card
-                  class="overflow-hidden rounded-xl bg-neutral-200"
-                >
-                  <SmartImage
-                    src={img}
-                    alt={`${title} — image ${i + 1}`}
-                    widths={[600, 1200, 1800]}
-                    sizes="(min-width: 640px) 100vw, 100vw"
-                    class="h-full w-full object-cover"
-                  />
-                </div>
-              ))}
+
+        {hasBody && (
+          <div data-reveal class="prose prose-invert max-w-none">
+            <Content />
+          </div>
+        )}
+
+        {blocks.map((block) =>
+          block.type === "text" ? (
+            <div data-reveal>
+              {block.heading && (
+                <h2 class="mb-4 font-normal tracking-[-0.5px] text-[clamp(1.25rem,1.6vw,1.75rem)]">
+                  {block.heading}
+                </h2>
+              )}
+              <div
+                class="prose prose-invert max-w-none"
+                set:html={marked.parse(block.body) as string}
+              />
             </div>
-            {block.caption && (
-              <p class="mt-3 font-mono text-xs uppercase tracking-widest text-neutral-500">
-                {block.caption}
-              </p>
-            )}
-          </section>
-        )
-      )}
+          ) : (
+            <div>
+              <div data-card-group class:list={["grid gap-4", galleryCols[block.layout]]}>
+                {block.images.map((img, i) => (
+                  <div
+                    data-card
+                    class:list={[
+                      "overflow-hidden bg-neutral-800",
+                      block.layout === "full" ? "aspect-[16/10]" : "aspect-[4/3]",
+                    ]}
+                  >
+                    <img
+                      src={src(img)}
+                      alt={`${title} — image ${i + 1}`}
+                      class="h-full w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              {block.caption && (
+                <p class="mt-3 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+                  {block.caption}
+                </p>
+              )}
+            </div>
+          )
+        )}
+      </div>
     </div>
   </main>
 </BaseLayout>

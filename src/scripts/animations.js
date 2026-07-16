@@ -24,6 +24,90 @@ export function initAnimations() {
   initSectionStretch(reduce);
   initSplitReveals(reduce);
   initTextTrail(reduce);
+  initPageTransition(reduce);
+}
+
+// Curtain page transition: thumbnail click sweeps a 3-tone curtain up to cover,
+// then the case-study page sweeps it away and reveals its left content.
+function initPageTransition(reduce) {
+  const curtain = document.querySelector("[data-curtain]");
+  if (!curtain) return;
+  const panels = gsap.utils.toArray("[data-curtain-panel]");
+  const isEnter = curtain.hasAttribute("data-enter");
+
+  // Arriving on a case-study page: uncover, then reveal the left column.
+  if (isEnter) {
+    if (reduce) {
+      gsap.set(panels, { yPercent: 100 });
+      revealCaseContent(true);
+    } else {
+      gsap.set(panels, { yPercent: 0 });
+      gsap.to(panels, {
+        yPercent: -100,
+        duration: 0.7,
+        ease: "power4.inOut",
+        stagger: 0.08,
+        onComplete: () => gsap.set(panels, { yPercent: 100 }),
+      });
+      revealCaseContent(false, 0.5); // emerge as the curtain lifts
+    }
+  }
+
+  // Clicking a marked link: sweep the curtain up to cover, then navigate.
+  document.querySelectorAll("a[data-curtain-link]").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      const href = a.getAttribute("href");
+      if (!href) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      if (reduce) {
+        window.location.href = href;
+        return;
+      }
+      gsap.set(panels, { yPercent: 100 });
+      gsap.to(panels, {
+        yPercent: 0,
+        duration: 0.6,
+        ease: "power4.inOut",
+        stagger: { each: 0.08, from: "end" },
+        onComplete: () => (window.location.href = href),
+      });
+    });
+  });
+
+  // Reset if restored from the back/forward cache (avoid a stuck curtain).
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) gsap.set(panels, { yPercent: 100 });
+  });
+}
+
+// SplitText line reveal for the case-study left column (title, paragraph, meta).
+function revealCaseContent(reduce, delay = 0) {
+  const els = gsap.utils.toArray("[data-case-reveal]");
+  if (!els.length) return;
+
+  if (reduce) {
+    gsap.set(els, { opacity: 1 });
+    return;
+  }
+
+  const run = () => {
+    els.forEach((el, i) => {
+      gsap.set(el, { opacity: 1 });
+      const split = new SplitText(el, { type: "lines", mask: "lines" });
+      gsap.from(split.lines, {
+        yPercent: 110,
+        duration: 0.8,
+        stagger: 0.08,
+        delay: delay + i * 0.1,
+        ease: "power3.out",
+        onComplete: () => split.revert(),
+      });
+    });
+  };
+
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  else run();
 }
 
 // Cursor text trail on the right of the philosophy section: as the pointer

@@ -33,9 +33,40 @@ body {
 .js [data-card],
 .js [data-status-item],
 .js [data-fw-hide],
-.js [data-split-reveal] {
+.js [data-split-reveal],
+.js [data-case-reveal] {
   opacity: 0;
   will-change: transform, opacity;
+}
+
+/* ---- Page-transition curtain (thumbnail click -> case study) ---- */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  overflow: hidden;
+}
+.curtain-panel {
+  position: absolute;
+  inset: 0;
+  transform: translateY(100%); /* parked below the screen */
+}
+.curtain-panel--1 {
+  z-index: 3;
+  background: #8b5cf6;
+}
+.curtain-panel--2 {
+  z-index: 2;
+  background: #6d28d9;
+}
+.curtain-panel--3 {
+  z-index: 1;
+  background: #4338ca;
+}
+/* Case-study pages start covered; JS then sweeps the curtain up. */
+.js [data-curtain][data-enter] .curtain-panel {
+  transform: translateY(0);
 }
 
 /* Lock scrolling while the intro loader runs. */
@@ -314,4 +345,19 @@ html.is-loading body {
 }
 .prose strong {
   color: var(--color-neutral-900);
+}
+
+/* Dark variant for case-study content on the #0a0a0a background. Body text
+   matches the site's standard paragraph (white, clamp size, 1.4 leading). */
+.prose-invert {
+  color: #fff;
+  max-width: none;
+  font-size: clamp(0.8rem, 0.9vw, 1.1rem);
+  line-height: 1.4;
+}
+.prose-invert h2,
+.prose-invert h3,
+.prose-invert strong,
+.prose-invert a {
+  color: #fff;
 }

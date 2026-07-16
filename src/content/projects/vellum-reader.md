@@ -3,6 +3,7 @@ title: Headspace
 description: A focused reading app designed around comfort — typography, pacing, and a distraction-free canvas.
 year: 2024
 role: Product Designer
+agency: Ferraz Creative
 client: Vellum
 tags:
   - Mobile

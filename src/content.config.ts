@@ -45,6 +45,7 @@ const projects = defineCollection({
       description: z.string(),
       year: z.number(),
       role: z.string().optional(),
+      agency: z.string().optional(),
       client: z.string().optional(),
       tags: z.array(z.string()).default([]),
       thumbnail: imageSource,

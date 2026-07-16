@@ -9,11 +9,14 @@ import Header from "../components/Header.astro";
 interface Props {
   title?: string;
   description?: string;
+  // Case-study pages start covered by the curtain, which then reveals on load.
+  enterCurtain?: boolean;
 }
 
 const {
   title = "Suthan — Product Designer",
   description = "Selected work by Suthan.",
+  enterCurtain = false,
 } = Astro.props;
 
 const year = new Date().getFullYear();
@@ -36,6 +39,11 @@ const year = new Date().getFullYear();
     </script>
   </head>
   <body class="text-neutral-900 antialiased">
+    <div data-curtain data-enter={enterCurtain || undefined} class="curtain" aria-hidden="true">
+      <div data-curtain-panel class="curtain-panel curtain-panel--1"></div>
+      <div data-curtain-panel class="curtain-panel curtain-panel--2"></div>
+      <div data-curtain-panel class="curtain-panel curtain-panel--3"></div>
+    </div>
     <Header />
     <div class="progressive-blur" aria-hidden="true">
       <div class="progressive-blur__layer is--1"></div>

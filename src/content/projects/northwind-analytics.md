@@ -3,6 +3,7 @@ title: Northwind
 description: A calm analytics platform that turns dense datasets into clear, glanceable stories for non-technical teams.
 year: 2025
 role: Lead Product Designer
+agency: Ferraz Creative
 client: Northwind
 tags:
   - Product Design
