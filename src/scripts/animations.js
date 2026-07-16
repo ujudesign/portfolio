@@ -35,10 +35,13 @@ function initPageTransition(reduce) {
   const panels = gsap.utils.toArray("[data-curtain-panel]");
   const isEnter = curtain.hasAttribute("data-enter");
 
-  // Arriving on a case-study page: uncover, then reveal the left column.
+  // Arriving on a case-study page: uncover, then reveal the left column and
+  // fade the lead images in (they'd otherwise fade behind the curtain).
   if (isEnter) {
+    const enterFades = gsap.utils.toArray("[data-enter-fade]");
     if (reduce) {
       gsap.set(panels, { yPercent: 100 });
+      gsap.set(enterFades, { opacity: 1 });
       revealCaseContent(true);
     } else {
       gsap.set(panels, { yPercent: 0 });
@@ -50,6 +53,17 @@ function initPageTransition(reduce) {
         onComplete: () => gsap.set(panels, { yPercent: 100 }),
       });
       revealCaseContent(false, 0.5); // emerge as the curtain lifts
+      if (enterFades.length) {
+        gsap.to(enterFades, {
+          opacity: 1,
+          y: 0,
+          startAt: { y: 36 },
+          duration: 0.9,
+          stagger: 0.14,
+          delay: 0.5,
+          ease: "power3.out",
+        });
+      }
     }
   }
 
@@ -620,7 +634,7 @@ function initScrollReveals(reduce) {
       duration: 0.8,
       ease: "power3.out",
       startAt: { y: 32 },
-      scrollTrigger: { trigger: el, start: "top 85%" },
+      scrollTrigger: { trigger: el, start: "top bottom" },
     });
   });
 
@@ -632,7 +646,7 @@ function initScrollReveals(reduce) {
       ease: "power3.out",
       stagger: 0.08,
       startAt: { y: 24 },
-      scrollTrigger: { trigger: group, start: "top 85%" },
+      scrollTrigger: { trigger: group, start: "top bottom" },
     });
   });
 }

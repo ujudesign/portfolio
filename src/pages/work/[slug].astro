@@ -92,12 +92,12 @@ const galleryCols: Record<string, string> = {
 
       {/* Right: hero image, optional overview, then content blocks */}
       <div class="flex flex-col gap-[clamp(2.5rem,6vh,6rem)] pt-[clamp(3.5rem,7vh,6.5rem)] pb-[clamp(6rem,16vh,14rem)]">
-        <div data-reveal class="aspect-[16/10] w-full overflow-hidden bg-neutral-800">
+        <div data-enter-fade class="aspect-[16/10] w-full overflow-hidden bg-neutral-800">
           <img src={src(thumbnail)} alt={title} class="h-full w-full object-cover" />
         </div>
 
         {thumbnailHover && (
-          <div data-reveal class="aspect-[16/10] w-full overflow-hidden bg-neutral-800">
+          <div data-enter-fade class="aspect-[16/10] w-full overflow-hidden bg-neutral-800">
             <img src={src(thumbnailHover)} alt={title} class="h-full w-full object-cover" />
           </div>
         )}

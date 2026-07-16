@@ -34,7 +34,8 @@ body {
 .js [data-status-item],
 .js [data-fw-hide],
 .js [data-split-reveal],
-.js [data-case-reveal] {
+.js [data-case-reveal],
+.js [data-enter-fade] {
   opacity: 0;
   will-change: transform, opacity;
 }
