@@ -29,6 +29,7 @@ collections:
     public_folder: "../../assets/uploads"
     fields:
       - { label: Title, name: title, widget: string }
+      - { label: URL slug, name: slug, widget: string, required: false, hint: "Custom page URL, e.g. data-vysta. Leave blank to use the file name." }
       - { label: Short description, name: description, widget: text, hint: "One line shown on the homepage card." }
       - { label: Year, name: year, widget: number, value_type: int, min: 1990, max: 2100 }
       - { label: Role, name: role, widget: string, required: false }

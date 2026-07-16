@@ -72,7 +72,7 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
         <div class="flex flex-col gap-[clamp(2rem,5.5vh,5.5rem)] pt-[clamp(3.5rem,7vh,6.5rem)] pb-[clamp(6rem,16vh,14rem)]">
           {featured.map((p, i) => (
             <a
-              href={`/work/${p.id}`}
+              href={`/work/${p.data.slug ?? p.id}`}
               data-fw-item
               data-curtain-link
               data-index={i}

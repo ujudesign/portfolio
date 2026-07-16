@@ -40,8 +40,22 @@ const projects = defineCollection({
       caption: z.string().optional(),
     });
 
+    // A custom URL slug (overrides the filename). Blank falls back to the file
+    // name. Whatever's typed is normalized to a URL-safe form.
+    const optionalSlug = z.preprocess((v) => {
+      if (typeof v !== "string" || !v.trim()) return undefined;
+      return v
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }, z.string().optional());
+
     return z.object({
       title: z.string(),
+      slug: optionalSlug,
       description: z.string(),
       year: z.number(),
       role: z.string().optional(),

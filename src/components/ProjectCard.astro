@@ -13,7 +13,7 @@ const idx = String(index).padStart(2, "0");
 const meta = [year, ...(tags ?? [])].join(" — ");
 ---
 
-<a href={`/work/${project.id}`} data-card class="group block">
+<a href={`/work/${project.data.slug ?? project.id}`} data-card class="group block">
   <div class="relative w-full overflow-hidden rounded-xl bg-neutral-200 aspect-[16/10]">
     <SmartImage
       src={thumbnail}
