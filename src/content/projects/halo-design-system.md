@@ -1,5 +1,6 @@
 ---
 title: Data Vysta
+slug: data-vysta
 description: An enterprise AI Agents Platform that deploys autonomous intelligence to automate business operations. AI agents make intelligent decisions, orchestrate complex workflows across multiple systems, and operate 24/7.
 year: 2025
 role: Senior Product Designer
