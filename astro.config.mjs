@@ -5,6 +5,8 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
+import cloudflare from "@astrojs/cloudflare";
+
 // Remove the local-only CMS admin from the production build so it isn't public.
 // Runs as part of `astro build`, regardless of how the build is invoked.
 function excludeAdmin() {
@@ -22,6 +24,7 @@ function excludeAdmin() {
 export default defineConfig({
   // Update this to your real domain before going live (used for sitemap/SEO).
   site: "https://suthan.design",
+
   integrations: [
     mdx(),
     sitemap({
@@ -29,7 +32,10 @@ export default defineConfig({
     }),
     excludeAdmin(),
   ],
+
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: cloudflare()
 });
