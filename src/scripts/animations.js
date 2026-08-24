@@ -40,6 +40,12 @@ function initProjectGallery(reduce) {
   const track = document.querySelector("[data-gallery-track]");
   if (!section || !viewport || !track) return;
 
+  // Below md, the gallery is a plain vertical stack (see global.css) — no
+  // horizontal scroll, drag, loop, or track-height sync. Checked once at
+  // init rather than kept in sync with resize; a live device doesn't cross
+  // this breakpoint without a reload, and that's the case this is for.
+  if (window.matchMedia("(max-width: 767px)").matches) return;
+
   const copies = gsap.utils.toArray("[data-gallery-copy]");
   const navLinks = gsap.utils.toArray("[data-gallery-link]");
   if (copies.length < 3) return;

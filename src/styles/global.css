@@ -385,6 +385,42 @@ html.is-loading body {
   display: block;
   -webkit-user-drag: none;
 }
+/* Below md: plain vertical stack, no carousel — initProjectGallery skips all
+   JS (Lenis/drag/loop/height-sync) at this width, see animations.js. Only
+   the real copy is shown; the two loop-duplicate copies are hidden. */
+@media (max-width: 767px) {
+  .gallery-viewport {
+    display: block;
+    flex: none;
+    overflow: visible;
+    cursor: auto;
+    touch-action: auto;
+    user-select: auto;
+    -webkit-user-select: auto;
+  }
+  .gallery-track {
+    display: block;
+    width: auto;
+    height: auto;
+  }
+  .gallery-copy[aria-hidden="true"] {
+    display: none;
+  }
+  .gallery-copy,
+  .project-group {
+    display: block;
+  }
+  .gallery-image {
+    width: 100%;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  .gallery-image img {
+    width: 100%;
+    height: auto;
+  }
+}
 .gallery-bar {
   display: flex;
   flex: none;
