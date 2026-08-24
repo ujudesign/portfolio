@@ -1,0 +1,14 @@
+{
+  // Tells Cloudflare's build (which runs `npm run build` then `npx wrangler deploy`)
+  // to deploy the static build output directly — no Worker script, no SSR.
+  // Without this file, Cloudflare's Astro auto-detection assumes a server-rendered
+  // app and tries to run Astro's on-demand image endpoint, which needs Sharp and
+  // can't run in the Workers runtime — that's what was causing images to 404.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio",
+  "compatibility_date": "2026-08-24",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
