@@ -44,6 +44,21 @@ function initProjectGallery(reduce) {
   const navLinks = gsap.utils.toArray("[data-gallery-link]");
   if (copies.length < 3) return;
 
+  // The image heights come from a chain of flex `stretch` (viewport → track →
+  // copy → project-group → image) so they fill whatever room the flex-column
+  // layout leaves them. That multi-level implicit-stretch chain isn't resolved
+  // consistently across engines (confirmed: fine in Chromium, but collapses to
+  // the images' intrinsic size — i.e. near-square, ignoring the actual stretched
+  // height — in WebKit/iOS). Setting the track's height explicitly in JS makes
+  // that first link definite and unambiguous everywhere; stretch from a real
+  // pixel height down through copy/group/image is ordinary flexbox after that.
+  const syncTrackHeight = () => {
+    const h = viewport.getBoundingClientRect().height;
+    if (h > 0) track.style.height = `${h}px`;
+  };
+  syncTrackHeight();
+  new ResizeObserver(syncTrackHeight).observe(viewport);
+
   let cycleWidth = copies[0].getBoundingClientRect().width;
   let isProgrammaticJump = false;
   let galleryLenis = null;
