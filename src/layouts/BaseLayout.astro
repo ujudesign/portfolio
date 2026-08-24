@@ -9,17 +9,14 @@ import Header from "../components/Header.astro";
 interface Props {
   title?: string;
   description?: string;
-  // Case-study pages start covered by the curtain, which then reveals on load.
-  enterCurtain?: boolean;
 }
 
 const {
   title = "Suthan — Product Designer",
   description = "Selected work by Suthan.",
-  enterCurtain = false,
 } = Astro.props;
 
-const year = new Date().getFullYear();
+const namespace = Astro.url.pathname.startsWith("/work/") ? "case-study" : "home";
 ---
 
 <!doctype html>
@@ -32,37 +29,29 @@ const year = new Date().getFullYear();
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />    <script is:inline>
+    <meta property="og:type" content="website" />
+    <script is:inline>
       document.documentElement.classList.add("js");
       // Always start at the top so the intro loader is tied to the hero.
       if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     </script>
   </head>
-  <body class="text-neutral-900 antialiased">
-    <div data-curtain data-enter={enterCurtain || undefined} class="curtain" aria-hidden="true">
+  <body data-barba="wrapper" class="text-neutral-900 antialiased">
+    <div
+      data-curtain
+      class="curtain"
+      aria-hidden="true"
+    >
       <div data-curtain-panel class="curtain-panel curtain-panel--1"></div>
       <div data-curtain-panel class="curtain-panel curtain-panel--2"></div>
       <div data-curtain-panel class="curtain-panel curtain-panel--3"></div>
     </div>
     <Header />
-    <div class="progressive-blur" aria-hidden="true">
-      <div class="progressive-blur__layer is--1"></div>
-      <div class="progressive-blur__layer is--2"></div>
-      <div class="progressive-blur__layer is--3"></div>
-      <div class="progressive-blur__layer is--4"></div>
-      <div class="progressive-blur__layer is--5"></div>
+    {/* Progressive-blur header-fade effect parked (not deleted) — see global.css .progressive-blur — it was built for the old full-width header and doesn't fit the compact nav. */}
+    <div data-barba="container" data-barba-namespace={namespace}>
+      <slot />
+      {/* Footer parked in src/components/Footer.astro while the site is rebuilt. */}
     </div>
-    <slot />
-    <footer class="w-full border-t border-neutral-300 px-6 py-10 sm:px-10 lg:px-16">
-      <div
-        class="mx-auto flex w-full max-w-[1800px] items-center justify-between text-sm text-neutral-500"
-      >
-        <span>© {year} Suthan</span>
-        <a href="#top" class="transition-colors hover:text-neutral-900">
-          Back to top ↑
-        </a>
-      </div>
-    </footer>
 
     <script>
       import { initAnimations } from "../scripts/animations.js";

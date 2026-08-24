@@ -13,6 +13,7 @@ interface Props {
   class?: string;
   widths?: number[];
   sizes?: string;
+  quality?: number | "low" | "mid" | "high" | "max";
 }
 
 const {
@@ -21,6 +22,7 @@ const {
   class: className,
   widths = [400, 800, 1200],
   sizes = "100vw",
+  quality,
 } = Astro.props;
 ---
 
@@ -28,6 +30,6 @@ const {
   typeof src === "string" ? (
     <img src={src} alt={alt} loading="lazy" decoding="async" class={className} />
   ) : (
-    <Image src={src} alt={alt} widths={widths} sizes={sizes} class={className} />
+    <Image src={src} alt={alt} widths={widths} sizes={sizes} quality={quality} class={className} />
   )
 }

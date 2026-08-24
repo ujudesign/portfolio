@@ -20,18 +20,16 @@ const experience = [
   "Past - Product Designer at MetaLab, 3magine, PasswordBox",
 ];
 
-// Left column ends at the hero portrait's left edge (same as Featured Work).
-const colWidth = "lg:w-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))]";
 ---
 
-<section class="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white">
+<section
+  data-philosophy
+  class="relative z-10 -mt-[100vh] min-h-screen overflow-hidden bg-[#0a0a0a] text-white"
+>
   <div
-    data-trail
-    class="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden lg:block"
-    aria-hidden="true"
-  ></div>
-  <div class="relative z-10 flex min-h-screen flex-col items-start justify-between p-[clamp(1rem,1.6vw,2.5rem)]">
-    <div class={`w-full ${colWidth}`}>
+    class="grid w-full gap-16 p-[clamp(1rem,1.6vw,2.5rem)] lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr] lg:items-end lg:gap-[clamp(4rem,8vw,12rem)]"
+  >
+    <div class="w-full">
       <h2
         data-split-reveal
         class="font-normal leading-[1.1] tracking-[-0.5px] text-[clamp(1.375rem,1.8vw,2.25rem)]"
@@ -45,7 +43,9 @@ const colWidth = "lg:w-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))]";
       </div>
     </div>
 
-    <div class={`mt-16 grid w-full grid-cols-2 gap-8 ${colWidth}`}>
+    <div
+      class="grid w-full gap-10 sm:grid-cols-[0.75fr_1.25fr] sm:gap-8 lg:w-fit lg:grid-cols-[max-content_max-content] lg:justify-self-end lg:gap-[clamp(4rem,7vw,10rem)]"
+    >
       <div data-split-reveal>
         <p class="mb-5 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
           Skillset

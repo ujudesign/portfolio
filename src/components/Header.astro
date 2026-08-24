@@ -1,38 +1,17 @@
 ---
-// Fixed status bar. `mix-blend-difference` keeps the text legible over both the
-// dark hero and the lighter sections below, flipping black/white automatically.
+// Compact fixed nav, top-left: name/role/company on one line, About/Contact below.
+// Styling: https://www.figma.com/design/PTZdLouHPXz6SgE59kEqGW/Portfolio-Pieces?node-id=43-4536
 ---
 
-<header id="top" class="fixed inset-x-0 top-0 z-50">
-  <div
-    class="flex w-full items-center justify-between gap-4 px-[clamp(1rem,1.6vw,2.5rem)] py-4 font-mono text-[10px] uppercase tracking-[0.06em] text-muted"
-  >
-    <a href="/" data-status-item class="freelance-link">
-      <span class="freelance-label">Suthan / Product Designer</span>
-    </a>
-    <span data-status-item class="hidden md:block">Currently at Ferrazcreative</span>
-    <span data-status-item id="clock" class="hidden md:block">MTL, QC</span>
-    <a href="/contact" data-status-item class="freelance-link">
-      <span class="freelance-dot"></span>
-      <span class="freelance-label">Available for Freelance</span>
-    </a>
-  </div>
+<header
+  id="top"
+  class="fixed left-0 top-0 z-50 flex flex-col gap-[4px] p-[10px] font-sans text-[10px] font-medium uppercase tracking-[0.06em]"
+>
+  <span data-status-item class="block text-black">
+    Suthan / Product Designer / Currently at Ferrazcreative
+  </span>
+  <nav data-status-item class="flex items-center justify-between gap-10 text-[#9d9d9d]">
+    <a href="/about" class="transition-colors hover:text-black">About</a>
+    <a href="/contact" class="transition-colors hover:text-black">Contact</a>
+  </nav>
 </header>
-
-<script>
-  // Live local time in Montreal, updating every second.
-  function tick() {
-    const el = document.getElementById("clock");
-    if (!el) return;
-    const time = new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-      timeZone: "America/Toronto",
-    }).format(new Date());
-    el.textContent = `${time} / MTL, QC`;
-  }
-  tick();
-  setInterval(tick, 1000);
-</script>

@@ -1,0 +1,58 @@
+---
+import { getCollection } from "astro:content";
+import SmartImage from "./SmartImage.astro";
+
+// Display order is controlled by filename (numeric prefix, e.g. 01-bleam.md).
+const projects = (await getCollection("projects")).sort((a, b) => a.id.localeCompare(b.id));
+
+// Rendered 3x so the strip can loop seamlessly — see initProjectGallery in
+// src/scripts/animations.js for the scroll/seam-correction logic this drives.
+const copies = [0, 1, 2];
+---
+
+{
+  projects.length > 0 && (
+    <section data-gallery class="relative flex min-h-0 flex-1 flex-col">
+      <div data-gallery-viewport class="gallery-viewport">
+        <div data-gallery-track class="gallery-track">
+          {copies.map((copyIndex) => (
+            <div data-gallery-copy class="gallery-copy" aria-hidden={copyIndex !== 0 ? "true" : undefined}>
+              {projects.map((project) => (
+                <div data-project-group data-project-id={project.id} class="project-group">
+                  {project.data.images.map((img) => (
+                    <figure class="gallery-image" data-gallery-entrance={copyIndex === 0 ? true : undefined}>
+                      <SmartImage
+                        src={img}
+                        alt=""
+                        widths={[800, 1400, 2200, 3200, 4000]}
+                        sizes="100vw"
+                        quality={92}
+                      />
+                    </figure>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="gallery-bar">
+        <p data-gallery-reveal class="gallery-label">Work '24 - '26</p>
+
+        <nav data-gallery-nav aria-label="Projects" class="gallery-nav">
+          {projects.map((project) => (
+            <button
+              type="button"
+              data-gallery-link
+              data-project-id={project.id}
+              class="gallery-nav__item"
+            >
+              {project.data.title}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </section>
+  )
+}

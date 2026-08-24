@@ -2,11 +2,13 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
+import barba from "@barba/core";
+import barbaPrefetch from "@barba/prefetch";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 // Flip to false to skip the intro loader while building other pages.
-const ENABLE_LOADER = true;
+const ENABLE_LOADER = false;
 
 // Set once Lenis is created; used by other effects that want scroll velocity.
 let lenisInstance = null;
@@ -22,76 +24,398 @@ export function initAnimations() {
   initHeroBackground(reduce);
   initFeatured(reduce);
   initSectionStretch(reduce);
+  initSectionHandoff(reduce);
   initSplitReveals(reduce);
-  initTextTrail(reduce);
   initPageTransition(reduce);
+  initProjectGallery(reduce);
 }
 
-// Curtain page transition: thumbnail click sweeps a 3-tone curtain up to cover,
-// then the case-study page sweeps it away and reveals its left content.
-function initPageTransition(reduce) {
-  const curtain = document.querySelector("[data-curtain]");
-  if (!curtain) return;
-  const panels = gsap.utils.toArray("[data-curtain-panel]");
-  const isEnter = curtain.hasAttribute("data-enter");
+// Infinite-loop horizontal project gallery. The track is rendered 3x in the
+// markup (see ProjectGallery.astro); we scroll a copy-width in from the start
+// and silently re-wrap the scroll position whenever it drifts into the first
+// or third copy, so the loop reads as seamless (the copies are identical).
+function initProjectGallery(reduce) {
+  const section = document.querySelector("[data-gallery]");
+  const viewport = document.querySelector("[data-gallery-viewport]");
+  const track = document.querySelector("[data-gallery-track]");
+  if (!section || !viewport || !track) return;
 
-  // Arriving on a case-study page: uncover, then reveal the left column and
-  // fade the lead images in (they'd otherwise fade behind the curtain).
-  if (isEnter) {
-    const enterFades = gsap.utils.toArray("[data-enter-fade]");
-    if (reduce) {
-      gsap.set(panels, { yPercent: 100 });
-      gsap.set(enterFades, { opacity: 1 });
-      revealCaseContent(true);
-    } else {
-      gsap.set(panels, { yPercent: 0 });
-      gsap.to(panels, {
-        yPercent: -100,
-        duration: 0.7,
-        ease: "power4.inOut",
-        stagger: 0.08,
-        onComplete: () => gsap.set(panels, { yPercent: 100 }),
+  const copies = gsap.utils.toArray("[data-gallery-copy]");
+  const navLinks = gsap.utils.toArray("[data-gallery-link]");
+  if (copies.length < 3) return;
+
+  let cycleWidth = copies[0].getBoundingClientRect().width;
+  let isProgrammaticJump = false;
+  let galleryLenis = null;
+
+  // Whenever a project is aligned to the viewport's left edge (initial load,
+  // or a nav click), it sits this many px in rather than flush against 0.
+  const LEFT_GAP = 10;
+
+  // A transient layout thrash elsewhere on the page (e.g. a SplitText mask
+  // briefly resizing a flex sibling) can momentarily report a near-zero
+  // cycleWidth. Treat anything below this as "not a real measurement yet"
+  // and skip loop-correction rather than risk correcting toward it.
+  const MIN_CYCLE_WIDTH = 100;
+  const cycleWidthIsSane = () => cycleWidth >= MIN_CYCLE_WIDTH;
+
+  // Offset of each project's first image from the start of one cycle
+  // (measured against copy 0 only — copies 1/2 are identical, just shifted).
+  const offsetInCycle = new Map();
+  const trackStart = () => track.getBoundingClientRect().left;
+  const measureOffsets = () => {
+    const start = trackStart();
+    gsap.utils.toArray("[data-project-group]", copies[0]).forEach((group) => {
+      offsetInCycle.set(group.dataset.projectId, group.getBoundingClientRect().left - start);
+    });
+  };
+  measureOffsets();
+
+  // On a cache-bypassing reload, images (especially remote ones) haven't
+  // loaded yet when we first measure, so cycleWidth is initially wrong and
+  // the opening scroll position lands on the wrong project. Keep correcting
+  // it as images finish loading (each one resizes copies[0]) until the user
+  // actually scrolls — then leave their position alone.
+  let hasUserInteracted = false;
+  const markInteracted = () => {
+    hasUserInteracted = true;
+  };
+  viewport.addEventListener("wheel", markInteracted, { passive: true, once: true });
+  viewport.addEventListener("touchstart", markInteracted, { passive: true, once: true });
+
+  const remeasure = () => {
+    cycleWidth = copies[0].getBoundingClientRect().width;
+    measureOffsets();
+    if (hasUserInteracted || !cycleWidthIsSane()) return;
+    const target = cycleWidth - LEFT_GAP;
+    if (galleryLenis) galleryLenis.scrollTo(target, { immediate: true, force: true });
+    else viewport.scrollLeft = target;
+  };
+  new ResizeObserver(remeasure).observe(copies[0]);
+
+  // Reduced motion: no smoothing, but the loop and click-to-scroll still work,
+  // driven directly against native scrollLeft instead of a Lenis instance.
+  if (reduce) {
+    viewport.scrollLeft = cycleWidth - LEFT_GAP;
+    viewport.addEventListener("scroll", () => {
+      if (isProgrammaticJump || !cycleWidthIsSane()) return;
+      if (viewport.scrollLeft >= cycleWidth * 2) viewport.scrollLeft -= cycleWidth;
+      else if (viewport.scrollLeft < cycleWidth) viewport.scrollLeft += cycleWidth;
+    });
+
+    navLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        markInteracted();
+        const offset = offsetInCycle.get(link.dataset.projectId) ?? 0;
+        isProgrammaticJump = true;
+        viewport.scrollLeft = cycleWidth + offset - LEFT_GAP;
+        isProgrammaticJump = false;
       });
-      revealCaseContent(false, 0.5); // emerge as the curtain lifts
-      if (enterFades.length) {
-        gsap.to(enterFades, {
-          opacity: 1,
-          y: 0,
-          startAt: { y: 36 },
-          duration: 0.9,
-          stagger: 0.14,
-          delay: 0.5,
-          ease: "power3.out",
-        });
-      }
-    }
+    });
+
+    initGalleryDrag(viewport, {
+      getScroll: () => viewport.scrollLeft,
+      setScroll: (v) => {
+        viewport.scrollLeft = v;
+      },
+      markInteracted,
+    });
+
+    initGalleryHighlight(copies, navLinks);
+    return;
   }
 
-  // Clicking a marked link: sweep the curtain up to cover, then navigate.
-  document.querySelectorAll("a[data-curtain-link]").forEach((a) => {
-    a.addEventListener("click", (e) => {
-      const href = a.getAttribute("href");
-      if (!href) return;
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-      e.preventDefault();
-      if (reduce) {
-        window.location.href = href;
-        return;
-      }
-      gsap.set(panels, { yPercent: 100 });
-      gsap.to(panels, {
-        yPercent: 0,
-        duration: 0.6,
-        ease: "power4.inOut",
-        stagger: { each: 0.08, from: "end" },
-        onComplete: () => (window.location.href = href),
+  galleryLenis = new Lenis({
+    wrapper: viewport,
+    content: track,
+    orientation: "horizontal",
+    gestureOrientation: "both",
+    smoothWheel: true,
+    syncTouch: true,
+    infinite: false,
+  });
+  gsap.ticker.add((time) => galleryLenis.raf(time * 1000));
+  galleryLenis.scrollTo(cycleWidth - LEFT_GAP, { immediate: true, force: true });
+
+  galleryLenis.on("scroll", ({ animatedScroll }) => {
+    if (isProgrammaticJump || !cycleWidthIsSane()) return;
+    if (animatedScroll >= cycleWidth * 2) {
+      galleryLenis.scrollTo(animatedScroll - cycleWidth, { immediate: true, force: true });
+    } else if (animatedScroll < cycleWidth) {
+      galleryLenis.scrollTo(animatedScroll + cycleWidth, { immediate: true, force: true });
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      if (!cycleWidthIsSane()) return;
+      markInteracted();
+      const offset = offsetInCycle.get(link.dataset.projectId) ?? 0;
+      const candidates = [offset, offset + cycleWidth, offset + cycleWidth * 2];
+      const current = galleryLenis.animatedScroll;
+      const best = candidates.reduce((a, b) => (Math.abs(current - b) < Math.abs(current - a) ? b : a)) - LEFT_GAP;
+
+      isProgrammaticJump = true;
+      galleryLenis.scrollTo(best, {
+        duration: 1,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
+        onComplete: () => {
+          if (cycleWidthIsSane()) {
+            let x = galleryLenis.animatedScroll;
+            if (x < cycleWidth) x += cycleWidth;
+            else if (x >= cycleWidth * 2) x -= cycleWidth;
+            galleryLenis.scrollTo(x, { immediate: true, force: true });
+          }
+          isProgrammaticJump = false;
+        },
       });
     });
   });
 
-  // Reset if restored from the back/forward cache (avoid a stuck curtain).
-  window.addEventListener("pageshow", (e) => {
-    if (e.persisted) gsap.set(panels, { yPercent: 100 });
+  initGalleryDrag(viewport, {
+    getScroll: () => galleryLenis.animatedScroll,
+    setScroll: (v) => galleryLenis.scrollTo(v, { immediate: true, force: true }),
+    coast: (velocity) => {
+      const distance = velocity * 180;
+      if (Math.abs(distance) < 4) return;
+      galleryLenis.scrollTo(galleryLenis.animatedScroll + distance, {
+        duration: 0.8,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
+      });
+    },
+    markInteracted,
+  });
+
+  initGalleryHighlight(copies, navLinks);
+}
+
+// Click-and-drag scrolling (mouse) alongside the existing wheel/touch handling —
+// touch is skipped here since Lenis's syncTouch (or native scroll, in the
+// reduced-motion path) already covers finger drags on the same element.
+function initGalleryDrag(viewport, { getScroll, setScroll, coast, markInteracted }) {
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartScroll = 0;
+  let lastX = 0;
+  let lastTime = 0;
+  let velocity = 0; // px/ms
+
+  const onPointerDown = (e) => {
+    if (e.pointerType === "touch" || e.button !== 0) return;
+    markInteracted();
+    isDragging = true;
+    dragStartX = lastX = e.clientX;
+    dragStartScroll = getScroll();
+    lastTime = performance.now();
+    velocity = 0;
+    viewport.classList.add("is-dragging");
+    try {
+      viewport.setPointerCapture(e.pointerId);
+    } catch {
+      // no-op: only happens for a pointerId the browser no longer considers active
+    }
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    const now = performance.now();
+    const dt = now - lastTime;
+    if (dt > 0) velocity = (e.clientX - lastX) / dt;
+    lastX = e.clientX;
+    lastTime = now;
+    setScroll(dragStartScroll - (e.clientX - dragStartX));
+  };
+
+  const endDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    viewport.classList.remove("is-dragging");
+    if (coast) coast(-velocity);
+  };
+
+  viewport.addEventListener("pointerdown", onPointerDown);
+  viewport.addEventListener("pointermove", onPointerMove);
+  viewport.addEventListener("pointerup", endDrag);
+  viewport.addEventListener("pointercancel", endDrag);
+}
+
+// Whichever project's image group is at the horizontal middle of the screen
+// gets `.is-active` on its matching nav button. Mirrors the vertical
+// mid-screen detection initFeatured() used for the old Featured Work section.
+function initGalleryHighlight(copies, navLinks) {
+  const groups = copies.flatMap((copy) => gsap.utils.toArray("[data-project-group]", copy));
+  let current = null;
+
+  const setActive = (id) => {
+    if (id === current) return;
+    current = id;
+    navLinks.forEach((link) => link.classList.toggle("is-active", link.dataset.projectId === id));
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) setActive(e.target.dataset.projectId);
+      });
+    },
+    { rootMargin: "0px -50% 0px -50%", threshold: 0 }
+  );
+  groups.forEach((g) => io.observe(g));
+}
+
+// Hold the final Featured Work frame in place while Philosophy scrolls over it.
+function initSectionHandoff(reduce) {
+  const featuredContent = document.querySelector("[data-featured-content]");
+  const philosophy = document.querySelector("[data-philosophy]");
+  if (!featuredContent || !philosophy || reduce) return;
+
+  const createPin = () => {
+    ScrollTrigger.create({
+      trigger: philosophy,
+      start: "top bottom",
+      end: "top top",
+      pin: featuredContent,
+      pinSpacing: false,
+    });
+  };
+
+  // The intro temporarily removes the vertical scrollbar. Wait until it has
+  // returned so the pin is created at the final viewport width from the start.
+  if (document.documentElement.classList.contains("is-loading")) {
+    window.addEventListener("intro:unlocked", createPin, { once: true });
+  } else {
+    createPin();
+  }
+}
+
+// Barba page transition: a project click covers the current page, holds it
+// until the next document is ready, then swaps at the fully covered frame.
+function initPageTransition(reduce) {
+  const curtain = document.querySelector("[data-curtain]");
+  if (!curtain) return;
+  const panels = gsap.utils.toArray("[data-curtain-panel]");
+
+  const revealDestinationContent = (delay = 0) => {
+    const enterFades = gsap.utils.toArray("[data-enter-fade]");
+
+    if (reduce) {
+      gsap.set(enterFades, { opacity: 1, y: 0 });
+      revealCaseContent(true);
+      return;
+    }
+
+    revealCaseContent(false, delay);
+    if (enterFades.length) {
+      gsap.to(enterFades, {
+        opacity: 1,
+        y: 0,
+        startAt: { y: 36 },
+        duration: 0.9,
+        stagger: 0.14,
+        delay,
+        ease: "power3.out",
+      });
+    }
+  };
+
+  const showDestinationImmediately = () => {
+    gsap.killTweensOf(panels);
+    gsap.set(panels, { y: 0, yPercent: 100 });
+    revealDestinationContent();
+  };
+
+  const revealDestination = () =>
+    new Promise((resolve) => {
+      // Begin the case-study reveals behind the covered viewport. They become
+      // visible progressively as the waterfall lifts away.
+      revealDestinationContent(0.16);
+      gsap.killTweensOf(panels);
+      gsap.set(panels, { y: 0, yPercent: 0 });
+      gsap.to(panels, {
+        y: 0,
+        yPercent: -100,
+        duration: 0.6,
+        ease: "power4.inOut",
+        stagger: 0.07,
+        onComplete: () => {
+          gsap.set(panels, { y: 0, yPercent: 100 });
+          resolve();
+        },
+      });
+    });
+
+  const coverSource = () =>
+    new Promise((resolve) => {
+      if (reduce) {
+        resolve();
+        return;
+      }
+
+      gsap.killTweensOf(panels);
+      gsap.set(panels, { y: 0, yPercent: 100 });
+      gsap.to(panels, {
+        y: 0,
+        yPercent: 0,
+        duration: 0.6,
+        ease: "power4.inOut",
+        stagger: { each: 0.08, from: "end" },
+        onComplete: resolve,
+      });
+    });
+
+  // Direct case-study loads have no incoming curtain or artificial reveal wait.
+  if (document.querySelector("[data-case-reveal]")) showDestinationImmediately();
+
+  // Direct case-study loads do not need a client router. Barba is initialized
+  // only on the homepage and only intercepts featured-project links.
+  const container = document.querySelector('[data-barba="container"]');
+  if (container?.dataset.barbaNamespace !== "home") return;
+
+  barba.use(barbaPrefetch, {
+    root: document.querySelector("[data-featured]") ?? document,
+    limit: 0,
+  });
+
+  barba.init({
+    prevent: ({ el }) => !el?.matches?.("a[data-curtain-link]"),
+    preventRunning: true,
+    transitions: [{
+      name: "featured-case-study",
+      leave() {
+        return coverSource();
+      },
+      afterLeave() {
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      },
+      beforeEnter({ current }) {
+        // Barba keeps the outgoing container until `enter` resolves. Hide it
+        // while the curtain fully covers the viewport so the upward reveal
+        // exposes only the incoming case-study container.
+        current.container.style.display = "none";
+      },
+      enter({ next }) {
+        window.scrollTo(0, 0);
+        if (lenisInstance) lenisInstance.scrollTo(0, { immediate: true });
+
+        // Astro's page script does not run again when Barba swaps containers.
+        // Initialize the below-the-fold reveals against the newly inserted
+        // case-study DOM so those elements do not remain at their CSS opacity 0.
+        initScrollReveals(reduce, next.container);
+        initSplitReveals(reduce, next.container);
+        if (lenisInstance) lenisInstance.resize();
+        ScrollTrigger.refresh();
+
+        return revealDestination();
+      },
+      after() {
+        // Keep Barba scoped to this one transition. Header links and browser
+        // history use normal document navigation from the case-study page.
+        setTimeout(() => {
+          barba.destroy();
+          window.addEventListener("popstate", () => window.location.reload(), { once: true });
+        }, 0);
+      },
+    }],
   });
 }
 
@@ -124,81 +448,9 @@ function revealCaseContent(reduce, delay = 0) {
   else run();
 }
 
-// Cursor text trail on the right of the philosophy section: as the pointer
-// moves, words are dropped along its path, each fading + shrinking out.
-function initTextTrail(reduce) {
-  const host = document.querySelector("[data-trail]");
-  if (!host || reduce) return;
-
-  const words = [
-    "Taste",
-    "Intent",
-    "Clarity",
-    "Craft",
-    "Human",
-    "Restraint",
-    "Care",
-    "Detail",
-    "Perspective",
-    "Experience",
-  ];
-  const POOL = 24; // recycled span elements
-  const THRESHOLD = 50; // px of travel between drops
-
-  const pool = [];
-  for (let i = 0; i < POOL; i++) {
-    const el = document.createElement("span");
-    el.className = "trail-word";
-    host.appendChild(el);
-    pool.push(el);
-  }
-  gsap.set(pool, { xPercent: -50, yPercent: -50, "--stroke": 0, "--ink": 0, "--bg": 0 });
-
-  let idx = 0; // next pool slot
-  let wi = 0; // next word
-  let z = 0; // rising stack so the newest sits on top
-  let lastX = 0;
-  let lastY = 0;
-  let primed = false; // reset each time the pointer (re)enters the column
-
-  const drop = (x, y) => {
-    const el = pool[idx % pool.length];
-    idx++;
-    el.textContent = words[wi % words.length];
-    wi++;
-    el.style.zIndex = String(++z);
-    gsap.killTweensOf(el);
-    gsap.set(el, { x, y, "--stroke": 0.9, "--ink": 1, "--bg": 1, filter: "blur(0px)" });
-    gsap.to(el, { "--stroke": 0, duration: 0.9, ease: "power1.out" }); // border fades first
-    gsap.to(el, { "--bg": 0, duration: 1.4, ease: "power2.out" }); // fill fades with text
-    gsap.to(el, { "--ink": 0, duration: 1.4, ease: "power2.out" }); // text lingers
-    gsap.to(el, { filter: "blur(9px)", duration: 1.4, ease: "power2.in" }); // blurs as it dies
-  };
-
-  window.addEventListener("pointermove", (e) => {
-    const r = host.getBoundingClientRect();
-    const x = e.clientX - r.left;
-    const y = e.clientY - r.top;
-    if (x < 0 || x > r.width || y < 0 || y > r.height) {
-      primed = false; // pointer left the column
-      return;
-    }
-    if (!primed) {
-      lastX = x;
-      lastY = y;
-      primed = true;
-      return;
-    }
-    if (Math.hypot(x - lastX, y - lastY) < THRESHOLD) return;
-    lastX = x;
-    lastY = y;
-    drop(x, y);
-  });
-}
-
 // SplitText line reveal for headings, triggered when they scroll into view.
-function initSplitReveals(reduce) {
-  const els = gsap.utils.toArray("[data-split-reveal]");
+function initSplitReveals(reduce, root = document) {
+  const els = gsap.utils.toArray(root.querySelectorAll("[data-split-reveal]"));
   if (!els.length) return;
 
   if (reduce) {
@@ -527,6 +779,9 @@ function lockScroll() {
 function unlockScroll() {
   document.documentElement.classList.remove("is-loading");
   if (lenisInstance) lenisInstance.start();
+
+  window.dispatchEvent(new Event("intro:unlocked"));
+  ScrollTrigger.refresh();
 }
 
 // Counter + progress line, then a 3-tone curtain sweeps the whole page up.
@@ -573,9 +828,14 @@ function revealHeroContent(reduce) {
   const heading = document.querySelector("[data-split-heading]");
   const paragraph = document.querySelector("[data-split-paragraph]");
   const portrait = document.querySelector("[data-hero-portrait]");
+  const galleryLabel = document.querySelector("[data-gallery-reveal]");
+  const galleryEntranceImages = gsap.utils.toArray("[data-gallery-entrance]");
 
   if (reduce) {
-    gsap.set([...statusItems, heading, paragraph, portrait], { opacity: 1, clearProps: "transform" });
+    gsap.set([...statusItems, heading, paragraph, portrait, galleryLabel, ...galleryEntranceImages], {
+      opacity: 1,
+      clearProps: "transform",
+    });
     return;
   }
 
@@ -610,6 +870,37 @@ function revealHeroContent(reduce) {
         0.35
       );
     }
+
+    // "Work '24 - '26" label — same line-mask treatment as the heading/paragraph.
+    if (galleryLabel) {
+      gsap.set(galleryLabel, { opacity: 1 });
+      const splitLabel = new SplitText(galleryLabel, { type: "lines", mask: "lines" });
+      tl.from(
+        splitLabel.lines,
+        { yPercent: 110, duration: 0.7, onComplete: () => splitLabel.revert() },
+        0.45
+      );
+    }
+
+    // Project nav — only the text lines animate; the button's own opacity is
+    // left alone so the active/inactive state (set elsewhere) isn't clobbered.
+    const galleryNavItems = gsap.utils.toArray("[data-gallery-link]");
+    galleryNavItems.forEach((item, i) => {
+      const split = new SplitText(item, { type: "lines", mask: "lines" });
+      tl.from(
+        split.lines,
+        { yPercent: 110, duration: 0.6, onComplete: () => split.revert() },
+        0.45 + i * 0.05
+      );
+    });
+
+    // Gallery screens — a plain fade, each screen in on its own beat. Only the
+    // first (real) copy carries this attribute; the two loop-duplicate copies
+    // are identical and mostly off-screen at load, so animating them is unnecessary.
+    if (galleryEntranceImages.length) {
+      gsap.set(galleryEntranceImages, { opacity: 1 });
+      tl.from(galleryEntranceImages, { opacity: 0, duration: 0.9, stagger: 0.08 }, 0.55);
+    }
   };
 
   // wait for the webfont so line breaks measure correctly
@@ -621,13 +912,16 @@ function revealHeroContent(reduce) {
 }
 
 // Scroll reveals for the sections below the hero.
-function initScrollReveals(reduce) {
+function initScrollReveals(reduce, root = document) {
+  const reveals = gsap.utils.toArray(root.querySelectorAll("[data-reveal]"));
+  const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
+
   if (reduce) {
-    gsap.set("[data-reveal], [data-card]", { opacity: 1, clearProps: "transform" });
+    gsap.set([...reveals, ...cards], { opacity: 1, clearProps: "transform" });
     return;
   }
 
-  gsap.utils.toArray("[data-reveal]").forEach((el) => {
+  reveals.forEach((el) => {
     gsap.to(el, {
       opacity: 1,
       y: 0,
@@ -638,7 +932,7 @@ function initScrollReveals(reduce) {
     });
   });
 
-  gsap.utils.toArray("[data-card-group]").forEach((group) => {
+  gsap.utils.toArray(root.querySelectorAll("[data-card-group]")).forEach((group) => {
     gsap.to(group.querySelectorAll("[data-card]"), {
       opacity: 1,
       y: 0,

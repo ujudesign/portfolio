@@ -1,0 +1,16 @@
+---
+// Parked (not deleted) — pulled out of BaseLayout while the site is rebuilt.
+// Re-add by rendering <Footer /> in BaseLayout.astro after the <slot />.
+const year = new Date().getFullYear();
+---
+
+<footer class="w-full border-t border-neutral-300 px-6 py-10 sm:px-10 lg:px-16">
+  <div
+    class="mx-auto flex w-full max-w-[1800px] items-center justify-between text-sm text-neutral-500"
+  >
+    <span>© {year} Suthan</span>
+    <a href="#top" class="transition-colors hover:text-neutral-900">
+      Back to top ↑
+    </a>
+  </div>
+</footer>

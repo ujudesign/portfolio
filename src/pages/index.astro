@@ -1,64 +1,31 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import FeaturedWork from "../components/FeaturedWork.astro";
-import Philosophy from "../components/Philosophy.astro";
-// Import the portrait as a plain static asset (served directly, no runtime
-// image endpoint) so it works on any static host. Replace src/assets/portrait.jpg
-// with the real photo (keep it web-sized, ~2000px).
-import portrait from "../assets/portrait.jpg";
+import ProjectGallery from "../components/ProjectGallery.astro";
+// FeaturedWork, Philosophy, and the old loader/portrait/hero-bg markup are
+// parked (not deleted) — see src/components/FeaturedWork.astro / Philosophy.astro
+// and the last commit's src/pages/index.astro for the removed markup.
 ---
 
 <BaseLayout>
-  <main>
-    {/* Full-page intro loader: counter + line, then a 3-tone curtain sweeps the page */}
-    <div data-loader class="loader-overlay" aria-hidden="true">
-      <div data-loader-line class="loader-line"></div>
-      <div class="loader-count"><span data-loader-num>0</span>%</div>
-    </div>
-    <div data-loader-panel class="loader-panel loader-panel--1"></div>
-    <div data-loader-panel class="loader-panel loader-panel--2"></div>
-    <div data-loader-panel class="loader-panel loader-panel--3"></div>
-
-    <section class="relative min-h-screen overflow-hidden bg-[#0a0a0a] px-[clamp(1rem,1.6vw,2.5rem)] text-white">
-      <div data-hero-bg aria-hidden="true" class="hero-bg absolute inset-0">
-        <canvas data-hero-dots class="hero-dots"></canvas>
-        <div class="hero-grain"></div>
-      </div>
-
-      <div class="relative z-10 w-full pt-[clamp(3.5rem,7vh,6.5rem)] [container-type:inline-size] lg:w-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))]">
+  <main class="flex h-screen flex-col">
+    <section class="relative px-[10px] pb-[80px]">
+      <div class="relative z-10 ml-auto w-full pt-[clamp(5.5rem,7vh,6.5rem)] lg:w-[540px] lg:pt-[10px]">
         <h1
           data-hero
           data-split-heading
-          class="font-normal leading-[1.15] tracking-[-0.5px] text-[clamp(1.75rem,4.3cqw,4.25rem)]"
+          class="font-medium leading-[30px] tracking-[-0.5px] text-[24px] text-black"
         >
-          An experienced designer bringing creative ideas and technical expertise to
-          digital products.
+          An experienced designer bringing creative ideas and technical expertise to digital products.
         </h1>
         <p
           data-hero
           data-split-paragraph
-          class="mt-[clamp(1.25rem,2vw,2rem)] text-[clamp(0.8rem,0.9vw,1.1rem)] leading-[1.4] tracking-normal"
+          class="mt-[6px] text-[14px] leading-normal tracking-[-0.1px] text-black"
         >
-          For the past decade I've designed and built digital products end to end, shaping rough, early ideas into things that feel clear and considered. I enjoy working closely with founders, studios, and teams. From early startups to established brands, the aim is always the same: products with a point of view, built to last.
+          For the past decade I've designed and built digital products end to end, shaping rough, early ideas into things that feel clear and considered. From early startups to established brands, the aim is always the same; designs built to last.
         </p>
       </div>
-
-      <div
-        data-hero-portrait
-        class="absolute bottom-[clamp(1rem,1.6vw,2.5rem)] right-[clamp(1rem,1.6vw,2.5rem)] z-10 aspect-[4/5] w-[clamp(11rem,19vw,24rem)]"
-      >
-        <div data-portrait class="portrait h-full w-full overflow-hidden bg-black">
-          <img
-            src={portrait.src}
-            width={portrait.width}
-            height={portrait.height}
-            alt="Suthan"
-            class="portrait__base"
-          />
-        </div>
-      </div>
     </section>
-    <FeaturedWork />
-    <Philosophy />
+    <ProjectGallery />
   </main>
 </BaseLayout>

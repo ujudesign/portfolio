@@ -17,7 +17,7 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
 
 {
   featured.length > 0 && (
-    <section data-featured class="relative bg-[#e2e2e2] text-[#0a0a0a]">
+    <section data-featured class="relative z-0 bg-[#e2e2e2] text-[#0a0a0a]">
       {/* Elastic top edge: bows up into the hero with scroll velocity, springs flat */}
       <svg
         data-stretch
@@ -30,7 +30,10 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
       </svg>
 
       {/* Left column ends at the hero portrait's left edge: 50% minus half the portrait width */}
-      <div class="grid w-full px-[clamp(1rem,1.6vw,2.5rem)] lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr]">
+      <div
+        data-featured-content
+        class="grid w-full px-[clamp(1rem,1.6vw,2.5rem)] lg:grid-cols-[calc(50%_-_clamp(7.5rem,11.5vw,21rem))_1fr]"
+      >
         <div class="relative">
           <div class="flex min-h-screen flex-col pt-[clamp(3.5rem,7vh,6.5rem)] pr-[clamp(2rem,5.2vw,7rem)] lg:sticky lg:top-0 lg:h-screen">
             <p
@@ -102,6 +105,9 @@ const hi = String(Math.max(...years) % 100).padStart(2, "0");
           ))}
         </div>
       </div>
+
+      {/* Gives the next section one viewport of space to scroll over this one. */}
+      <div class="h-screen" aria-hidden="true" />
     </section>
   )
 }
