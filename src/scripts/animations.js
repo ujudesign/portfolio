@@ -67,6 +67,7 @@ function initProjectGallery(reduce) {
 
   let cycleWidth = copies[0].getBoundingClientRect().width;
   let isProgrammaticJump = false;
+  let isCorrecting = false;
   let galleryLenis = null;
 
   // Whenever a project is aligned to the viewport's left edge (initial load,
@@ -159,12 +160,20 @@ function initProjectGallery(reduce) {
   galleryLenis.scrollTo(cycleWidth - LEFT_GAP, { immediate: true, force: true });
 
   galleryLenis.on("scroll", ({ animatedScroll }) => {
-    if (isProgrammaticJump || !cycleWidthIsSane()) return;
+    // scrollTo({immediate:true}) below emits synchronously, re-invoking this
+    // same handler before it returns. Without this guard, a cycleWidth that's
+    // shifting mid-correction (e.g. from a SplitText mask thrashing layout
+    // elsewhere) can defeat Lenis's own target===targetScroll no-op check and
+    // recurse indefinitely. This flag makes the re-entrant call a hard no-op
+    // regardless of why cycleWidth might be unstable.
+    if (isProgrammaticJump || isCorrecting || !cycleWidthIsSane()) return;
+    isCorrecting = true;
     if (animatedScroll >= cycleWidth * 2) {
       galleryLenis.scrollTo(animatedScroll - cycleWidth, { immediate: true, force: true });
     } else if (animatedScroll < cycleWidth) {
       galleryLenis.scrollTo(animatedScroll + cycleWidth, { immediate: true, force: true });
     }
+    isCorrecting = false;
   });
 
   navLinks.forEach((link) => {
@@ -863,10 +872,12 @@ function revealHeroContent(reduce) {
   const build = () => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    // status bar
-    if (statusItems.length) {
-      tl.to(statusItems, { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, startAt: { y: -6 } }, 0);
-    }
+    // status bar — same line-mask treatment as the heading/paragraph/gallery text
+    statusItems.forEach((item, i) => {
+      gsap.set(item, { opacity: 1 });
+      const split = new SplitText(item, { type: "lines", mask: "lines" });
+      tl.from(split.lines, { yPercent: 110, duration: 0.7, onComplete: () => split.revert() }, i * 0.08);
+    });
 
     // heading — line-by-line reveal, then revert to natural text
     if (heading) {
@@ -915,12 +926,15 @@ function revealHeroContent(reduce) {
       );
     });
 
-    // Gallery screens — a plain fade, each screen in on its own beat. Only the
-    // first (real) copy carries this attribute; the two loop-duplicate copies
-    // are identical and mostly off-screen at load, so animating them is unnecessary.
+    // Gallery screens — a plain fade, each screen in on its own beat. Starts
+    // just before the last text reveal (the gallery label, finishing ~1.15)
+    // wraps up, so the handoff from text to images reads as one continuous
+    // sequence rather than two separate animations. Only the first (real)
+    // copy carries this attribute; the two loop-duplicate copies are identical
+    // and mostly off-screen at load, so animating them is unnecessary.
     if (galleryEntranceImages.length) {
       gsap.set(galleryEntranceImages, { opacity: 1 });
-      tl.from(galleryEntranceImages, { opacity: 0, duration: 0.9, stagger: 0.08 }, 0.55);
+      tl.from(galleryEntranceImages, { opacity: 0, duration: 0.9, stagger: 0.08 }, 1.0);
     }
   };
 

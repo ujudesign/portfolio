@@ -13,6 +13,23 @@ const copies = [0, 1, 2];
 {
   projects.length > 0 && (
     <section data-gallery class="relative flex min-h-0 flex-1 flex-col">
+      <div class="gallery-bar">
+        <p data-gallery-reveal class="gallery-label">Work '24 - '26</p>
+
+        <nav data-gallery-nav aria-label="Projects" class="gallery-nav">
+          {projects.map((project) => (
+            <button
+              type="button"
+              data-gallery-link
+              data-project-id={project.id}
+              class="gallery-nav__item"
+            >
+              {project.data.title}
+            </button>
+          ))}
+        </nav>
+      </div>
+
       <div data-gallery-viewport class="gallery-viewport">
         <div data-gallery-track class="gallery-track">
           {copies.map((copyIndex) => (
@@ -35,23 +52,6 @@ const copies = [0, 1, 2];
             </div>
           ))}
         </div>
-      </div>
-
-      <div class="gallery-bar">
-        <p data-gallery-reveal class="gallery-label">Work '24 - '26</p>
-
-        <nav data-gallery-nav aria-label="Projects" class="gallery-nav">
-          {projects.map((project) => (
-            <button
-              type="button"
-              data-gallery-link
-              data-project-id={project.id}
-              class="gallery-nav__item"
-            >
-              {project.data.title}
-            </button>
-          ))}
-        </nav>
       </div>
     </section>
   )
