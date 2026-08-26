@@ -1,5 +1,5 @@
 ---
 title: Nudge
 images:
-  - ../../assets/uploads/nudge-1.png
+  - ../../assets/uploads/nudge-update-2.png
 ---
