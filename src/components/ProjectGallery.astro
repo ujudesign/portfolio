@@ -37,7 +37,7 @@ const copies = [0, 1, 2];
               {projects.map((project) => (
                 <div data-project-group data-project-id={project.id} class="project-group">
                   {project.data.images.map((img) => (
-                    <figure class="gallery-image" data-gallery-entrance={copyIndex === 0 ? true : undefined}>
+                    <figure class="gallery-image" data-gallery-entrance={copyIndex === 2 ? true : undefined}>
                       <SmartImage
                         src={img}
                         alt=""

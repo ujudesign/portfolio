@@ -926,15 +926,17 @@ function revealHeroContent(reduce) {
       );
     });
 
-    // Gallery screens — a plain fade, each screen in on its own beat. Starts
-    // just before the last text reveal (the gallery label, finishing ~1.15)
-    // wraps up, so the handoff from text to images reads as one continuous
-    // sequence rather than two separate animations. Only the first (real)
-    // copy carries this attribute; the two loop-duplicate copies are identical
-    // and mostly off-screen at load, so animating them is unnecessary.
+    // Gallery screens — a plain fade, each screen in on its own beat. The loop
+    // seam correction positions the third copy in the viewport on load, so
+    // only that copy carries the entrance attribute. Begin after the page
+    // content has settled, then keep the stagger restrained and sequential.
     if (galleryEntranceImages.length) {
       gsap.set(galleryEntranceImages, { opacity: 1 });
-      tl.from(galleryEntranceImages, { opacity: 0, duration: 0.9, stagger: 0.08 }, 1.0);
+      tl.from(
+        galleryEntranceImages,
+        { opacity: 0, duration: 0.8, stagger: 0.16, ease: "power1.out" },
+        1.0
+      );
     }
   };
 
