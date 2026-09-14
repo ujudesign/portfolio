@@ -71,7 +71,7 @@ const experience = [
           <ul class="about-experience">
             {experience.map(({ label, role, company }) => (
               <li>
-                <span class="about-experience__label">{label}</span>
+                <span class="about-experience__label" data-split-reveal>{label}</span>
                 <div data-split-reveal>
                   <p>{role}</p>
                   <p class="about-experience__company">{company}</p>
