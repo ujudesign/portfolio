@@ -1,17 +1,18 @@
 ---
 // Compact fixed nav, top-left: name/role/company on one line, About/Contact below.
 // Styling: https://www.figma.com/design/PTZdLouHPXz6SgE59kEqGW/Portfolio-Pieces?node-id=43-4536
+const isAbout = Astro.url.pathname.replace(/\/$/, "") === "/about";
 ---
 
 <header
   id="top"
   class="fixed inset-x-0 top-0 z-50 flex flex-col gap-[4px] p-[10px] font-sans text-[10px] font-medium uppercase tracking-[0.06em] lg:inset-x-auto lg:left-0"
 >
-  <span data-status-item class="block text-black">
+  <a href="/" data-status-item class="block text-black">
     Suthan / Product Designer / Currently at Ferrazcreative
-  </span>
+  </a>
   <nav class="flex items-center justify-between gap-10 text-[#9d9d9d]">
-    <a data-status-item href="/about" class="transition-colors hover:text-black">About</a>
+    <a data-status-item href="/about" aria-current={isAbout ? "page" : undefined} class:list={["transition-colors hover:text-black", { "text-black": isAbout }]}>About</a>
     <a data-status-item href="/contact" class="transition-colors hover:text-black">Contact</a>
   </nav>
 </header>

@@ -489,22 +489,31 @@ function initSplitReveals(reduce, root = document) {
   }
 
   const run = () => {
+    let loadIndex = 0;
     els.forEach((el) => {
+      const reveal = (delay = 0) => {
+        gsap.set(el, { opacity: 1 });
+        const split = new SplitText(el, { type: "lines", mask: "lines" });
+        gsap.from(split.lines, {
+          yPercent: 110,
+          duration: 0.8,
+          delay,
+          stagger: 0.1,
+          ease: "power3.out",
+          onComplete: () => split.revert(),
+        });
+      };
+      const revealOnLoad = !!el.closest("[data-split-on-load]");
+      const rect = el.getBoundingClientRect();
+      if (revealOnLoad && rect.top < window.innerHeight && rect.bottom > 0) {
+        reveal(0.2 + loadIndex++ * 0.035);
+        return;
+      }
       ScrollTrigger.create({
         trigger: el,
-        start: "top 85%",
+        start: revealOnLoad ? "top bottom" : "top 85%",
         once: true,
-        onEnter: () => {
-          gsap.set(el, { opacity: 1 });
-          const split = new SplitText(el, { type: "lines", mask: "lines" });
-          gsap.from(split.lines, {
-            yPercent: 110,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power3.out",
-            onComplete: () => split.revert(),
-          });
-        },
+        onEnter: () => reveal(),
       });
     });
   };
@@ -857,12 +866,13 @@ function revealHeroContent(reduce) {
   const statusItems = gsap.utils.toArray("[data-status-item]");
   const heading = document.querySelector("[data-split-heading]");
   const paragraph = document.querySelector("[data-split-paragraph]");
+  const splitLinks = gsap.utils.toArray("[data-split-link]");
   const portrait = document.querySelector("[data-hero-portrait]");
   const galleryLabel = document.querySelector("[data-gallery-reveal]");
   const galleryEntranceImages = gsap.utils.toArray("[data-gallery-entrance]");
 
   if (reduce) {
-    gsap.set([...statusItems, heading, paragraph, portrait, galleryLabel, ...galleryEntranceImages], {
+    gsap.set([...statusItems, heading, paragraph, ...splitLinks, portrait, galleryLabel, ...galleryEntranceImages], {
       opacity: 1,
       clearProps: "transform",
     });
@@ -892,6 +902,17 @@ function revealHeroContent(reduce) {
       const splitP = new SplitText(paragraph, { type: "lines", mask: "lines" });
       tl.from(splitP.lines, { yPercent: 110, duration: 0.8, stagger: 0.06, onComplete: () => splitP.revert() }, 0.3);
     }
+
+    // Supporting links, such as the 404 page's "Back home" action.
+    splitLinks.forEach((link, i) => {
+      gsap.set(link, { opacity: 1 });
+      const split = new SplitText(link, { type: "lines", mask: "lines" });
+      tl.from(
+        split.lines,
+        { yPercent: 110, duration: 0.7, onComplete: () => split.revert() },
+        0.45 + i * 0.05
+      );
+    });
 
     // portrait — fade in and up
     if (portrait) {

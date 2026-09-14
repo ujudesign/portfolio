@@ -1,0 +1,212 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import portrait from "../assets/portrait.jpg";
+
+const capabilities = [
+  "Product & interface design",
+  "Design systems",
+  "Web development",
+  "Webflow, Framer & Shopify",
+  "AI tools",
+];
+
+const experience = [
+  { label: "Current", role: "Senior Product Designer", company: "Ferraz Creative" },
+  { label: "Independent", role: "Designer & Developer", company: "Freelance" },
+  { label: "Previously", role: "Senior Product Designer", company: "HFS · FYI / Nira" },
+  { label: "Previously", role: "Product Designer", company: "MetaLab · 3magine · PasswordBox" },
+];
+---
+
+<BaseLayout
+  title="About — Suthan, Product Designer"
+  description="Meet Suthan, a product designer and developer with a decade of experience. A little about my approach, capabilities, and the teams I've worked with."
+>
+  <main class="about-page">
+    <h1 class="sr-only">About Suthan</h1>
+
+    <div class="about-grid">
+      <figure class="about-portrait" data-reveal>
+        <figcaption>
+          <span>Designer & builder</span>
+          <span>A decade in digital products</span>
+        </figcaption>
+        <Image
+          src={portrait}
+          alt="Suthan, seated and smiling"
+          widths={[480, 800, 1200]}
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          loading="eager"
+          quality={85}
+        />
+      </figure>
+
+      <div class="about-details" data-split-on-load>
+        <section aria-labelledby="approach-heading">
+          <h2 id="approach-heading" class="about-label" data-split-reveal>01 / Approach</h2>
+          <p class="about-statement" data-split-reveal>Clarity over cleverness.</p>
+          <p class="about-copy" data-split-reveal>
+            I believe good product design is mostly judgment: the hundreds of
+            small choices about what to keep, what to cut, and how something
+            should feel to use. None of them show up on a feature list, but you
+            feel all of them.
+          </p>
+          <p class="about-copy" data-split-reveal>
+            Tools change. Taste, intent, and knowing when something is done still
+            come from a person. I want to make work that feels made by someone
+            who cared about every choice.
+          </p>
+        </section>
+
+        <section aria-labelledby="capabilities-heading">
+          <h2 id="capabilities-heading" class="about-label" data-split-reveal>02 / Capabilities</h2>
+          <ul class="about-capabilities">
+            {capabilities.map((capability) => <li data-split-reveal>{capability}</li>)}
+          </ul>
+        </section>
+
+        <section aria-labelledby="experience-heading">
+          <h2 id="experience-heading" class="about-label" data-split-reveal>03 / Experience</h2>
+          <ul class="about-experience">
+            {experience.map(({ label, role, company }) => (
+              <li>
+                <span class="about-experience__label">{label}</span>
+                <div data-split-reveal>
+                  <p>{role}</p>
+                  <p class="about-experience__company">{company}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+
+  </main>
+</BaseLayout>
+
+<style>
+  .about-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 10px;
+  }
+  .about-label {
+    margin-bottom: 18px;
+    color: #9d9d9d;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .about-statement {
+    color: #000;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 30px;
+    letter-spacing: -0.5px;
+  }
+  .about-copy {
+    margin-top: 6px;
+    color: #000;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.1px;
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 540px;
+    align-items: start;
+    gap: clamp(40px, 6vw, 120px);
+    margin-top: auto;
+    padding-top: clamp(64px, 10vh, 140px);
+    flex-shrink: 0;
+  }
+  .about-portrait {
+    width: 100%;
+    max-width: 680px;
+  }
+  .about-portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 40%;
+  }
+  .about-portrait figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: #9d9d9d;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .about-details {
+    display: grid;
+    gap: 52px;
+  }
+  .about-copy + .about-copy {
+    margin-top: 16px;
+  }
+  .about-capabilities {
+    display: grid;
+    gap: 6px;
+    color: #000;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.1px;
+  }
+  .about-experience li {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 16px;
+    border-top: 1px solid #e8e8e8;
+    padding: 14px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.1px;
+  }
+  .about-experience__label {
+    padding-top: 3px;
+    color: #9d9d9d;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .about-experience__company {
+    color: #888;
+  }
+  @media (max-width: 1023px) {
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 48px;
+      padding-top: 48px;
+    }
+    .about-portrait {
+      max-width: 540px;
+    }
+    .about-details {
+      max-width: 540px;
+      margin-left: auto;
+    }
+  }
+  @media (max-width: 479px) {
+    .about-portrait figcaption {
+      font-size: 9px;
+      letter-spacing: 0.03em;
+    }
+    .about-experience li {
+      grid-template-columns: 84px minmax(0, 1fr);
+      gap: 12px;
+    }
+  }
+</style>
