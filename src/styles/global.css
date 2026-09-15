@@ -342,6 +342,35 @@ html.is-loading body {
 }
 
 /* ---- Project gallery: infinite horizontal loop ---- */
+.gallery-drag-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.72;
+  translate: -50% -50%;
+  will-change: transform, opacity;
+}
+.gallery-drag-cursor__face {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #0a0a0a;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
 .gallery-viewport {
   flex: 1;
   min-height: 0;

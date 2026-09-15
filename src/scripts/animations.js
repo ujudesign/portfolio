@@ -50,6 +50,8 @@ function initProjectGallery(reduce) {
   const navLinks = gsap.utils.toArray("[data-gallery-link]");
   if (copies.length < 3) return;
 
+  initGalleryCursor(section, viewport, reduce);
+
   // The image heights come from a chain of flex `stretch` (viewport → track →
   // copy → project-group → image) so they fill whatever room the flex-column
   // layout leaves them. That multi-level implicit-stretch chain isn't resolved
@@ -217,6 +219,57 @@ function initProjectGallery(reduce) {
   });
 
   initGalleryHighlight(copies, navLinks);
+}
+
+// A floating drag affordance trails the native pointer with elastic movement.
+// Touch, reduced motion, and the vertical mobile stack keep their native UI.
+function initGalleryCursor(section, viewport, reduce) {
+  const cursor = section.querySelector("[data-gallery-cursor]");
+  const face = cursor?.querySelector("[data-gallery-cursor-face]");
+  if (!cursor || !face || reduce || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+  const followX = gsap.quickTo(cursor, "x", { duration: 0.38, ease: "power3.out" });
+  const followY = gsap.quickTo(cursor, "y", { duration: 0.38, ease: "power3.out" });
+  let visible = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  const move = (e) => {
+    if (e.pointerType !== "mouse") return;
+    const x = Math.min(window.innerWidth - 28, e.clientX + 38);
+    const y = Math.min(window.innerHeight - 28, e.clientY + 34);
+    if (!visible) {
+      gsap.set(cursor, { x, y });
+      gsap.to(cursor, { opacity: 1, scale: 1, duration: 0.32, ease: "power3.out", overwrite: "auto" });
+      visible = true;
+    } else {
+      followX(x);
+      followY(y);
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      gsap.set(face, {
+        scaleX: 1 + Math.min(Math.abs(dx) * 0.012, 0.28) - Math.min(Math.abs(dy) * 0.003, 0.06),
+        scaleY: 1 + Math.min(Math.abs(dy) * 0.012, 0.28) - Math.min(Math.abs(dx) * 0.003, 0.06),
+      });
+      gsap.to(face, { scaleX: 1, scaleY: 1, duration: 0.7, ease: "elastic.out(1, 0.5)", overwrite: "auto" });
+    }
+    lastX = e.clientX;
+    lastY = e.clientY;
+  };
+
+  section.addEventListener("pointerenter", move);
+  section.addEventListener("pointermove", move);
+  section.addEventListener("pointerleave", () => {
+    visible = false;
+    gsap.to(cursor, { opacity: 0, scale: 0.72, duration: 0.25, ease: "power2.out", overwrite: "auto" });
+  });
+  viewport.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    gsap.to(cursor, { scale: 0.9, duration: 0.2, ease: "power2.out" });
+  });
+  const release = () => gsap.to(cursor, { scale: 1, duration: 0.35, ease: "back.out(2)" });
+  viewport.addEventListener("pointerup", release);
+  viewport.addEventListener("pointercancel", release);
 }
 
 // Click-and-drag scrolling (mouse) alongside the existing wheel/touch handling —
