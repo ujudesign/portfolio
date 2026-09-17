@@ -233,6 +233,19 @@ function initGalleryCursor(section, viewport, reduce) {
   let visible = false;
   let lastX = 0;
   let lastY = 0;
+  const revealLabel = () => {
+    const lines = gsap.utils.toArray("[data-gallery-cursor-line]", face);
+    gsap.killTweensOf(lines);
+    gsap.fromTo(lines, {
+      yPercent: 110,
+    }, {
+      yPercent: 0,
+      duration: 0.5,
+      delay: 0.08,
+      stagger: 0.08,
+      ease: "power3.out",
+    });
+  };
 
   const move = (e) => {
     if (e.pointerType !== "mouse") return;
@@ -241,6 +254,7 @@ function initGalleryCursor(section, viewport, reduce) {
     if (!visible) {
       gsap.set(cursor, { x, y });
       gsap.to(cursor, { opacity: 1, scale: 1, duration: 0.32, ease: "power3.out", overwrite: "auto" });
+      revealLabel();
       visible = true;
     } else {
       followX(x);

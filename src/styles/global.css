@@ -349,8 +349,8 @@ html.is-loading body {
   z-index: 45;
   display: grid;
   place-items: center;
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   color: #fff;
   pointer-events: none;
   opacity: 0;
@@ -367,9 +367,17 @@ html.is-loading body {
   background: #0a0a0a;
   font-size: 10px;
   font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.03em;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-align: center;
   text-transform: uppercase;
+}
+.gallery-drag-cursor__mask {
+  display: block;
+  overflow: hidden;
+}
+.gallery-drag-cursor__mask > span {
+  display: block;
 }
 .gallery-viewport {
   flex: 1;
