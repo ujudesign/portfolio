@@ -2,8 +2,10 @@
 import { getCollection } from "astro:content";
 import SmartImage from "./SmartImage.astro";
 
-// Display order is controlled by filename (numeric prefix, e.g. 01-bleam.md).
-const projects = (await getCollection("projects")).sort((a, b) => a.id.localeCompare(b.id));
+// Match the explicit order shown in the CMS rather than relying on filenames.
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.displayOrder - b.data.displayOrder || a.data.title.localeCompare(b.data.title)
+);
 
 // Rendered 3x so the strip can loop seamlessly — see initProjectGallery in
 // src/scripts/animations.js for the scroll/seam-correction logic this drives.

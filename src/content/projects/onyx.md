@@ -1,5 +1,6 @@
 ---
 title: Onyx
+displayOrder: 2
 images:
   - ../../assets/uploads/onyx-1-update.png
   - ../../assets/uploads/onyx-2.png

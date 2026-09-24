@@ -23,11 +23,15 @@ collections:
     folder: src/content/projects
     create: true
     slug: "{{slug}}"
+    sortable_fields:
+      - displayOrder
+      - title
     # Per-collection media path (relative to the entry file) so the saved
     # frontmatter path matches what Astro's image() expects.
     media_folder: "../../assets/uploads"
     public_folder: "../../assets/uploads"
     fields:
+      - { label: Display order, name: displayOrder, widget: number, value_type: int, min: 1, default: 99, hint: "Lower numbers appear first in the CMS and on the portfolio." }
       - { label: Title, name: title, widget: string }
       - label: Images
         name: images
