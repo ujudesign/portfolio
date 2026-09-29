@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import SmartImage from "./SmartImage.astro";
+import ProjectMedia from "./ProjectMedia.astro";
 
 // Match the explicit order shown in the CMS rather than relying on filenames.
 const projects = (await getCollection("projects")).sort(
@@ -38,15 +38,9 @@ const copies = [0, 1, 2];
             <div data-gallery-copy class="gallery-copy" aria-hidden={copyIndex !== 0 ? "true" : undefined}>
               {projects.map((project) => (
                 <div data-project-group data-project-id={project.id} class="project-group">
-                  {project.data.images.map((img) => (
+                  {project.data.images.map((media) => (
                     <figure class="gallery-image" data-gallery-entrance={copyIndex === 2 ? true : undefined}>
-                      <SmartImage
-                        src={img}
-                        alt=""
-                        widths={[800, 1400, 2200, 3200, 4000]}
-                        sizes="100vw"
-                        quality={92}
-                      />
+                      <ProjectMedia src={media} />
                     </figure>
                   ))}
                 </div>

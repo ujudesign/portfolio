@@ -33,7 +33,8 @@ collections:
     fields:
       - { label: Display order, name: displayOrder, widget: number, value_type: int, min: 1, default: 99, hint: "Lower numbers appear first in the CMS and on the portfolio." }
       - { label: Title, name: title, widget: string }
-      - label: Images
+      - label: Media
         name: images
         widget: list
-        field: { label: Image, name: image, widget: image }
+        hint: "Add images or muted looping videos. MP4 (H.264) is recommended for widest compatibility."
+        field: { label: Image or video, name: media, widget: file, accept: "image/*,video/mp4,video/webm,.mp4,.webm" }

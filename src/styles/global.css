@@ -400,7 +400,7 @@ html.is-loading body {
 .gallery-viewport.is-dragging {
   cursor: grabbing;
 }
-.gallery-viewport.is-dragging .gallery-image img {
+.gallery-viewport.is-dragging .gallery-image :is(img, video) {
   pointer-events: none;
 }
 .gallery-track {
@@ -417,11 +417,12 @@ html.is-loading body {
   flex: none;
   margin-right: 10px;
 }
-.gallery-image img {
+.gallery-image :is(img, video) {
   height: 100%;
   width: auto;
   display: block;
   -webkit-user-drag: none;
+  object-fit: contain;
 }
 /* Below md: plain vertical stack, no carousel — initProjectGallery skips all
    JS (Lenis/drag/loop/height-sync) at this width, see animations.js. Only
@@ -454,7 +455,7 @@ html.is-loading body {
     margin-right: 0;
     margin-bottom: 10px;
   }
-  .gallery-image img {
+  .gallery-image :is(img, video) {
     width: 100%;
     height: auto;
   }

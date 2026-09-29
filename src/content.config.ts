@@ -9,14 +9,14 @@ import { glob } from "astro/loaders";
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
   schema: ({ image }) => {
-    // An image can be a local upload (optimized by Astro) OR a remote URL —
-    // the CMS image widget can produce either, so we accept both.
-    const imageSource = z.union([image(), z.string().url()]);
+    // Local images are optimized by Astro. Strings also allow local MP4/WebM
+    // uploads and remote image/video URLs, which ProjectMedia renders safely.
+    const mediaSource = z.union([image(), z.string()]);
 
     return z.object({
       displayOrder: z.number().int().positive(),
       title: z.string(),
-      images: z.array(imageSource).min(1),
+      images: z.array(mediaSource).min(1),
     });
   },
 });

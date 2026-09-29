@@ -40,6 +40,8 @@ function initProjectGallery(reduce) {
   const track = document.querySelector("[data-gallery-track]");
   if (!section || !viewport || !track) return;
 
+  initGalleryVideos(section, reduce);
+
   // Below md, the gallery is a plain vertical stack (see global.css) — no
   // horizontal scroll, drag, loop, or track-height sync. Checked once at
   // init rather than kept in sync with resize; a live device doesn't cross
@@ -219,6 +221,35 @@ function initProjectGallery(reduce) {
   });
 
   initGalleryHighlight(copies, navLinks);
+}
+
+// Only decode/play the video screens near the viewport. The gallery is
+// rendered three times for its seamless loop, so this avoids running every
+// duplicate video in the background. Reduced-motion users get native controls
+// instead of autoplay.
+function initGalleryVideos(section, reduce) {
+  const videos = section.querySelectorAll("[data-gallery-video]");
+  if (!videos.length) return;
+
+  if (reduce) {
+    videos.forEach((video) => {
+      video.controls = true;
+    });
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      });
+    },
+    { rootMargin: "100px", threshold: 0.05 }
+  );
+
+  videos.forEach((video) => observer.observe(video));
 }
 
 // A floating drag affordance trails the native pointer with elastic movement.
