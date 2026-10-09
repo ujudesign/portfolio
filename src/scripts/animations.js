@@ -259,11 +259,31 @@ function initGalleryCursor(section, viewport, reduce) {
   const face = cursor?.querySelector("[data-gallery-cursor-face]");
   if (!cursor || !face || reduce || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
-  const followX = gsap.quickTo(cursor, "x", { duration: 0.38, ease: "power3.out" });
-  const followY = gsap.quickTo(cursor, "y", { duration: 0.38, ease: "power3.out" });
+  const position = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+  const setX = gsap.quickSetter(cursor, "x", "px");
+  const setY = gsap.quickSetter(cursor, "y", "px");
+  const setRotation = gsap.quickSetter(cursor, "rotation", "deg");
+  const setScaleX = gsap.quickSetter(cursor, "scaleX");
+  const setScaleY = gsap.quickSetter(cursor, "scaleY");
+  const setFaceRotation = gsap.quickSetter(face, "rotation", "deg");
   let visible = false;
-  let lastX = 0;
-  let lastY = 0;
+
+  const render = () => {
+    const dx = target.x - position.x;
+    const dy = target.y - position.y;
+    const distance = Math.hypot(dx, dy);
+    const stretch = Math.min(distance * 0.008, 0.38);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    setX(position.x);
+    setY(position.y);
+    setRotation(angle);
+    setScaleX(1 + stretch);
+    setScaleY(1 - stretch * 0.55);
+    setFaceRotation(-angle);
+  };
+
   const revealLabel = () => {
     const lines = gsap.utils.toArray("[data-gallery-cursor-line]", face);
     gsap.killTweensOf(lines);
@@ -282,37 +302,55 @@ function initGalleryCursor(section, viewport, reduce) {
     if (e.pointerType !== "mouse") return;
     const x = Math.min(window.innerWidth - 28, e.clientX + 38);
     const y = Math.min(window.innerHeight - 28, e.clientY + 34);
+    target.x = x;
+    target.y = y;
+
     if (!visible) {
-      gsap.set(cursor, { x, y });
-      gsap.to(cursor, { opacity: 1, scale: 1, duration: 0.32, ease: "power3.out", overwrite: "auto" });
+      position.x = x;
+      position.y = y;
+      gsap.set(cursor, { x, y, rotation: 0, scaleX: 1, scaleY: 1 });
+      gsap.set(face, { rotation: 0 });
+      gsap.to(cursor, { opacity: 1, duration: 0.26, ease: "power2.out", overwrite: "auto" });
+      gsap.fromTo(face, { scale: 0.72 }, { scale: 1, duration: 0.42, ease: "back.out(1.8)", overwrite: "auto" });
       revealLabel();
       visible = true;
     } else {
-      followX(x);
-      followY(y);
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      gsap.set(face, {
-        scaleX: 1 + Math.min(Math.abs(dx) * 0.012, 0.28) - Math.min(Math.abs(dy) * 0.003, 0.06),
-        scaleY: 1 + Math.min(Math.abs(dy) * 0.012, 0.28) - Math.min(Math.abs(dx) * 0.003, 0.06),
+      gsap.to(position, {
+        x,
+        y,
+        duration: 0.55,
+        ease: "expo.out",
+        overwrite: true,
+        onUpdate: render,
+        onComplete: () => {
+          setScaleX(1);
+          setScaleY(1);
+        },
       });
-      gsap.to(face, { scaleX: 1, scaleY: 1, duration: 0.7, ease: "elastic.out(1, 0.5)", overwrite: "auto" });
     }
-    lastX = e.clientX;
-    lastY = e.clientY;
   };
 
-  section.addEventListener("pointerenter", move);
-  section.addEventListener("pointermove", move);
-  section.addEventListener("pointerleave", () => {
+  viewport.addEventListener("pointerenter", move);
+  viewport.addEventListener("pointermove", move);
+  viewport.addEventListener("pointerleave", () => {
     visible = false;
-    gsap.to(cursor, { opacity: 0, scale: 0.72, duration: 0.25, ease: "power2.out", overwrite: "auto" });
+    gsap.killTweensOf(position);
+    gsap.to(cursor, {
+      opacity: 0,
+      rotation: 0,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 0.25,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+    gsap.to(face, { scale: 0.72, rotation: 0, duration: 0.25, ease: "power2.out", overwrite: "auto" });
   });
   viewport.addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "mouse" || e.button !== 0) return;
-    gsap.to(cursor, { scale: 0.9, duration: 0.2, ease: "power2.out" });
+    gsap.to(face, { scale: 0.88, duration: 0.2, ease: "power2.out" });
   });
-  const release = () => gsap.to(cursor, { scale: 1, duration: 0.35, ease: "back.out(2)" });
+  const release = () => gsap.to(face, { scale: 1, duration: 0.35, ease: "back.out(2)" });
   viewport.addEventListener("pointerup", release);
   viewport.addEventListener("pointercancel", release);
 }

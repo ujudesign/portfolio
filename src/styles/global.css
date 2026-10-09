@@ -354,7 +354,6 @@ html.is-loading body {
   color: #fff;
   pointer-events: none;
   opacity: 0;
-  scale: 0.72;
   translate: -50% -50%;
   will-change: transform, opacity;
 }
@@ -371,6 +370,9 @@ html.is-loading body {
   letter-spacing: 0.01em;
   text-align: center;
   text-transform: uppercase;
+  scale: 0.72;
+  transform-origin: center;
+  will-change: transform;
 }
 .gallery-drag-cursor__mask {
   display: block;
